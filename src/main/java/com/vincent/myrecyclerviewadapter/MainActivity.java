@@ -9,7 +9,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     private DemoAdapter2 demoAdapter;
     private DemoBean demoBean;
     private DemoBean demoBean2;
+    private View item_head;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,10 +93,14 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         demoBeans.add(new DemoBean("k"));
         demoAdapter = new DemoAdapter2(R.layout.item_demo, demoBeans);
         recyclerView.setAdapter(demoAdapter);
-//        ItemTouchHelper.Callback callback = new BaseItemTouchHelperCallback<DemoBean>(demoAdapter, demoBeans);
-//        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
-//        demoAdapter.setItemTouchHelper(itemTouchHelper);
-//        itemTouchHelper.attachToRecyclerView(recyclerView);
+        ItemTouchHelper.Callback callback = new BaseItemTouchHelperCallback<DemoBean>(demoAdapter, demoBeans);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        demoAdapter.setItemTouchHelper(itemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+        item_head = LayoutInflater.from(this).inflate(R.layout.item_head, null);
+        View item_head2 = LayoutInflater.from(this).inflate(R.layout.item_head2, null);
+//        demoAdapter.addHeaderView(item_head);
+//        demoAdapter.addHeaderView(item_head2);
         demoAdapter.setOnItemClickListener(this);
         demoAdapter.setOnItemOtherClickListener(this);
         demoAdapter.setOnItemLongClickListener(this);
@@ -135,7 +142,12 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             demoAdapter.removeAll(demos);
             return true;
         }
-
+        if (id == R.id.removeHeader) {
+            demoAdapter.removeHeaderView(item_head);
+        }
+        if (id == R.id.removeAllHeader) {
+            demoAdapter.removeAllHeaderView();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -143,7 +155,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     public void onItemClick(ViewGroup parent, View v, int position) {
         switch (parent.getId()) {
             case R.id.recyclerView:
-                Log.i("MainActivity", demoAdapter.getList().get(position).getStr());
+                DemoBean tempDemoBean = (DemoBean) demoAdapter.getList().get(position);
+                Log.i("MainActivity", tempDemoBean.getStr());
                 break;
         }
     }
@@ -152,7 +165,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     public void onItemLongClick(ViewGroup parent, View v, int position) {
         switch (parent.getId()) {
             case R.id.recyclerView:
-                Toast.makeText(this, demoAdapter.getList().get(position).getStr(),
+                DemoBean tempDemoBean = (DemoBean) demoAdapter.getList().get(position);
+                Toast.makeText(this, tempDemoBean.getStr(),
                         Toast.LENGTH_SHORT).show();
                 break;
         }

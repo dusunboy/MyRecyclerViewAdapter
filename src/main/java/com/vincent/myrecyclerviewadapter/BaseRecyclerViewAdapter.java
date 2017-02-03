@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,6 +16,11 @@ import java.util.List;
  */
 abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> extends RecyclerView.Adapter<K>{
 
+    private static final int HEADER_VIEW = 0;
+    public static final int FOOTER_VIEW = 1;
+    private static final int LIST_VIEW = 2;
+    private List<View> headerViews;
+    private List<View> footViews;
     private int layoutResId;
     protected List<T> list;
     protected Context context;
@@ -27,57 +33,82 @@ abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> extends Recy
     BaseRecyclerViewAdapter(int layoutResId, List<T> list) {
         this.layoutResId = layoutResId;
         this.list = list;
+        headerViews = new ArrayList<>();
+        footViews = new ArrayList<>();
     }
 
     @Override
     public K onCreateViewHolder(final ViewGroup parent, int viewType) {
-        final K k;
+        K k = null;
         this.context = parent.getContext();
         layoutInflater = LayoutInflater.from(context);
-        switch (viewType) {
-            default:
+        int viewTypeMod = viewType % 10;
+        switch (viewTypeMod) {
+            case HEADER_VIEW:
+                int position = (viewType - HEADER_VIEW) / 10;
+                k = createBaseViewHolder(parent, headerViews.get(position));
+                break;
+            case LIST_VIEW:
                 k = createBaseViewHolder(parent, layoutResId);
                 break;
         }
-        k.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(parent, v, k.getAdapterPosition());
+        if (k != null && viewTypeMod == LIST_VIEW) {
+            final int position = (viewType - LIST_VIEW) / 10 - getHeaderViewsCount();
+            k.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemClickListener != null) {
+                        onItemClickListener.onItemClick(parent, v, position);
+                    }
                 }
-            }
-        });
-        k.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (onItemLongClickListener != null) {
-                    onItemLongClickListener.onItemLongClick(parent, v, k.getAdapterPosition());
+            });
+            k.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (onItemLongClickListener != null) {
+                        onItemLongClickListener.onItemLongClick(parent, v, position);
+                    }
+                    return true;
                 }
-                return true;
-            }
-        });
+            });
+        }
         return k;
     }
 
     @Override
     public void onBindViewHolder(K k, int position) {
         int viewType = k.getItemViewType();
-        switch (viewType) {
-            default:
+        int viewTypeMod = viewType % 10;
+        switch (viewTypeMod) {
+            case LIST_VIEW:
+                position = position - getHeaderViewsCount();
                 onBindView(k, list.get(position), position);
                 break;
         }
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (position < getHeaderViewsCount()) {
+            return HEADER_VIEW + position * 10;
+        } else {
+            return LIST_VIEW + position * 10;
+        }
+    }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return getHeaderViewsCount() + list.size() + footViews.size();
     }
 
     @SuppressWarnings("unchecked")
     private K createBaseViewHolder(ViewGroup parent, int layoutResId) {
         return (K) new BaseViewHolder(parent, getItemView(parent, layoutResId));
+    }
+
+    @SuppressWarnings("unchecked")
+    private K createBaseViewHolder(ViewGroup parent, View view) {
+        return (K) new BaseViewHolder(parent, view);
     }
 
     private View getItemView(ViewGroup parent, int layoutResId) {
@@ -145,4 +176,55 @@ abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> extends Recy
     public void setItemTouchHelper(ItemTouchHelper itemTouchHelper) {
         this.itemTouchHelper = itemTouchHelper;
     }
+
+    public boolean addHeaderView(View view) {
+        boolean isAdd = headerViews.add(view);
+        notifyDataSetChanged();
+        return isAdd;
+    }
+
+    public void addHeaderView(int index, View view) {
+        headerViews.add(index, view);
+        notifyDataSetChanged();
+    }
+
+    public boolean addAllHeaderView(List<View> views) {
+        boolean isAdd = headerViews.addAll(views);
+        notifyDataSetChanged();
+        return isAdd;
+    }
+
+    public boolean addAllHeaderView(int index, List<View> views) {
+        boolean isAdd = headerViews.addAll(index, views);
+        notifyDataSetChanged();
+        return isAdd;
+    }
+
+    public boolean removeHeaderView(View view) {
+        boolean isRemove = headerViews.remove(view);
+        notifyDataSetChanged();
+        return isRemove;
+    }
+
+    public View removeHeaderView(int index) {
+        View view = headerViews.remove(index);
+        notifyDataSetChanged();
+        return view;
+    }
+
+    public void removeAllHeaderView() {
+        headerViews.clear();
+        notifyDataSetChanged();
+    }
+
+    public boolean removeAllHeaderView(List<View> views) {
+        boolean isRemove = headerViews.removeAll(views);
+        notifyDataSetChanged();
+        return isRemove;
+    }
+
+    public int getHeaderViewsCount() {
+        return headerViews.size();
+    }
+
 }

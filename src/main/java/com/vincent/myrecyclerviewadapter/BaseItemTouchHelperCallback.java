@@ -20,7 +20,6 @@ import android.graphics.Canvas;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +29,8 @@ import java.util.List;
  * swipe-to-dismiss. Drag events are automatically started by an item long-press.<br/>
  * </br/>
  * Expects the <code>RecyclerView.Adapter</code> to listen for {@link
- * ItemTouchHelperAdapter} callbacks and the <code>RecyclerView.ViewHolder</code> to implement
- * {@link ItemTouchHelperViewHolder}.
+ * BaseItemTouchHelperCallback} callbacks and the <code>RecyclerView.ViewHolder</code> to implement
+ * {@link BaseItemTouchHelperCallback}.
  *
  * @author Paul Burke (ipaulpro)
  */
@@ -39,19 +38,13 @@ public class BaseItemTouchHelperCallback<T> extends ItemTouchHelper.Callback {
 
     public static final float ALPHA_FULL = 1.0f;
 
-//    private final ItemTouchHelperAdapter mAdapter;
     private final List<T> tList;
-    private final RecyclerView.Adapter adapter;
+    private final BaseRecyclerViewAdapter adapter;
 
-    public BaseItemTouchHelperCallback(RecyclerView.Adapter adapter, ArrayList<T> tList) {
+    public BaseItemTouchHelperCallback(BaseRecyclerViewAdapter adapter, ArrayList<T> tList) {
         this.adapter = adapter;
         this.tList = tList;
     }
-
-//    public SimpleItemTouchHelperCallback(ItemTouchHelperAdapter adapter, List<T> tList) {
-//        mAdapter = adapter;
-//        this.tList = tList;
-//    }
 
     @Override
     public boolean isLongPressDragEnabled() {
@@ -79,11 +72,9 @@ public class BaseItemTouchHelperCallback<T> extends ItemTouchHelper.Callback {
 
     @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target) {
-        if (source.getItemViewType() != target.getItemViewType()) {
-            return false;
-        }
-        int fromPosition = source.getAdapterPosition();
-        int toPosition = target.getAdapterPosition();
+        int fromPosition = source.getAdapterPosition() - adapter.getHeaderViewsCount();
+        int toPosition = target.getAdapterPosition() - adapter.getHeaderViewsCount();
+
         if (fromPosition < toPosition) {
             tList.add(toPosition + 1, tList.get(fromPosition));
             tList.remove(fromPosition);
@@ -91,24 +82,16 @@ public class BaseItemTouchHelperCallback<T> extends ItemTouchHelper.Callback {
             T t = tList.remove(fromPosition);
             tList.add(toPosition, t);
         }
-        adapter.notifyItemMoved(fromPosition, toPosition);
-        String str = "";
-        for (int i = 0; i < tList.size(); i++) {
-            str += tList.get(i).toString() + "-";
-        }
-        Log.i("onItemMove", str);
-        // Notify the adapter of the move
-//        mAdapter.onItemMove(source.getAdapterPosition(), target.getAdapterPosition());
+        adapter.notifyItemMoved(fromPosition + adapter.getHeaderViewsCount(),
+                toPosition + adapter.getHeaderViewsCount());
         return true;
     }
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int i) {
-        // Notify the adapter of the dismissal
-//        mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
-        int position = viewHolder.getAdapterPosition();
+        int position = viewHolder.getAdapterPosition() - adapter.getHeaderViewsCount();
         tList.remove(position);
-        adapter.notifyItemRemoved(position);
+        adapter.notifyItemRemoved(position  + adapter.getHeaderViewsCount());
     }
 
     @Override

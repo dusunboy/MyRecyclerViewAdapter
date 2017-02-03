@@ -17,20 +17,12 @@ public class DemoAdapter2 extends BaseRecyclerViewAdapter<DemoBean, BaseViewHold
         super(layoutResId, list);
     }
 
+
     @Override
     protected void onBindView(final BaseViewHolder baseViewHolder, DemoBean demoBean, final int position) {
         TextView tv = baseViewHolder.getView(R.id.tv);
         ImageView iv = baseViewHolder.getView(R.id.iv);
         tv.setText(demoBean.getStr());
-
-//        iv.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (onItemOtherClickListener != null) {
-//                    onItemOtherClickListener.onItemClick(v, position);
-//                }
-//            }
-//        });
         iv.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -42,7 +34,16 @@ public class DemoAdapter2 extends BaseRecyclerViewAdapter<DemoBean, BaseViewHold
                 return false;
             }
         });
+        iv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onItemOtherClickListener != null) {
+                    onItemOtherClickListener.onItemClick(v, position);
+                }
+            }
+        });
     }
+
 
 //    @Override
 //    public boolean onItemMove(int fromPosition, int toPosition) {

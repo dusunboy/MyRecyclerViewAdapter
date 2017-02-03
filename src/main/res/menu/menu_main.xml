@@ -18,4 +18,14 @@
         android:orderInCategory="101"
         android:title="remove"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/removeHeader"
+        android:orderInCategory="101"
+        android:title="removeHeader"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/removeAllHeader"
+        android:orderInCategory="101"
+        android:title="removeAllHeader"
+        app:showAsAction="never" />
 </menu>
