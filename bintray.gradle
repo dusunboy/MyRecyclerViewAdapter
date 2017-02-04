@@ -76,8 +76,8 @@ afterEvaluate {
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
+    user = hasProperty("bintray.user")?getProperty("bintray.user"):getProperty("bintray.user")
+    key = hasProperty("bintray.apikey")?getProperty("bintray.apikey"):getProperty("bintray.apikey")
 
     publications = ['mavenJava']
     publish = true
