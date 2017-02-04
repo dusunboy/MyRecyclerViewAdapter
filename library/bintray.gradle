@@ -1,0 +1,80 @@
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+version = '1.0.0'                                                             // #CONFIG# // project version
+def siteUrl = 'https://github.com/dusunboy/MyRecyclerViewAdapter'                        // #CONFIG# // project homepage
+def gitUrl = 'https://github.com/dusunboy/MyRecyclerViewAdapter.git'                     // #CONFIG# // project git
+group = "com.github.dusunboy"                                                          // #CONFIG# // Maven Group ID for the artifact (pageckage name is ok)
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+                name 'MyRecyclerViewAdapter'                                   // #CONFIG# // project title
+                url siteUrl
+                // Set your license
+                licenses {
+                    license {
+                        name 'The MIT License (MIT)'
+                        url 'http://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'dusunboy'                                           // #CONFIG# // your user id (you can write your nickname)
+                        name 'Vicent_Du'                                       // #CONFIG# // your user name
+                        email 'du_sunboy@qq.com'                               // #CONFIG# // your email
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    // archives javadocJar
+    archives sourcesJar
+}
+
+Properties properties = new Properties()
+boolean isHasFile = false
+if (project.rootProject.file('local.properties') != null){
+    isHasFile = true
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+}
+bintray {
+    user = isHasFile ? properties.getProperty("bintray.user") : System.getenv("bintray.user")
+    key = isHasFile ? properties.getProperty("bintray.apikey") : System.getenv("bintray.apikey")
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = "MyRecyclerViewAdapter"                                                 // #CONFIG# project name in jcenter
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        issueTrackerUrl = 'https://github.com/dusunboy/MyRecyclerViewAdapter/issues'
+        licenses = ["MIT"]
+        publish = true
+    }
+}
