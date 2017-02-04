@@ -1,10 +1,10 @@
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version = '1.0.0'                                                             // #CONFIG# // project version
-def siteUrl = 'https://github.com/dusunboy/MyRecyclerViewAdapter'                        // #CONFIG# // project homepage
-def gitUrl = 'https://github.com/dusunboy/MyRecyclerViewAdapter.git'                     // #CONFIG# // project git
-group = "com.github.dusunboy"                                                          // #CONFIG# // Maven Group ID for the artifact (pageckage name is ok)
+version = LIBRARY_VERSION             // #CONFIG# // project version
+def siteUrl = LIBRARY_SITE_URL        // #CONFIG# // project homepage
+def gitUrl = LIBRARY_GIT_URL          // #CONFIG# // project git
+group = LIBRARY_GROUP                 // #CONFIG# // Maven Group ID for the artifact (pageckage name is ok)
 
 install {
     repositories.mavenInstaller {
@@ -12,7 +12,8 @@ install {
         pom {
             project {
                 packaging 'aar'
-                name 'MyRecyclerViewAdapter'                                   // #CONFIG# // project title
+                name LIBRARY_NAME                           // #CONFIG# // project title
+                artifactId LIBRARY_ARTIFACT_ID
                 url siteUrl
                 // Set your license
                 licenses {
@@ -23,9 +24,9 @@ install {
                 }
                 developers {
                     developer {
-                        id 'dusunboy'                                           // #CONFIG# // your user id (you can write your nickname)
-                        name 'Vicent_Du'                                       // #CONFIG# // your user name
-                        email 'du_sunboy@qq.com'                               // #CONFIG# // your email
+                        id LIBRARY_USER_ID                   // #CONFIG# // your user id (you can write your nickname)
+                        name LIBRARY_USER_NAME               // #CONFIG# // your user name
+                        email LIBRARY_EMAIL                  // #CONFIG# // your email
                     }
                 }
                 scm {
@@ -70,10 +71,10 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = "maven"
-        name = "MyRecyclerViewAdapter"                                                 // #CONFIG# project name in jcenter
+        name = LIBRARY_NAME                    // #CONFIG# project name in jcenter
         websiteUrl = siteUrl
         vcsUrl = gitUrl
-        issueTrackerUrl = 'https://github.com/dusunboy/MyRecyclerViewAdapter/issues'
+        issueTrackerUrl = LIBRARY_ISSUE_TRACKER_URL
         licenses = ["MIT"]
         publish = true
     }
