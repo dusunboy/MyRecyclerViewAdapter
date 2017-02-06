@@ -72,6 +72,9 @@ public class BaseItemTouchHelperCallback<T> extends ItemTouchHelper.Callback {
 
     @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target) {
+        if (source.getItemViewType() != target.getItemViewType()) {
+            return false;
+        }
         int fromPosition = source.getAdapterPosition() - adapter.getHeaderViewsCount();
         int toPosition = target.getAdapterPosition() - adapter.getHeaderViewsCount();
 
@@ -116,18 +119,18 @@ public class BaseItemTouchHelperCallback<T> extends ItemTouchHelper.Callback {
                 baseViewHolder.onBaseItemSelected();
             }
         }
-
         super.onSelectedChanged(viewHolder, actionState);
     }
 
     @Override
     public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-        super.clearView(recyclerView, viewHolder);
         viewHolder.itemView.setAlpha(ALPHA_FULL);
         if (viewHolder instanceof BaseViewHolder) {
             // Tell the view holder it's time to restore the idle state
             BaseViewHolder baseViewHolder = (BaseViewHolder) viewHolder;
             baseViewHolder.onBaseItemClear();
         }
+        adapter.notifyDataSetChanged();
+        super.clearView(recyclerView, viewHolder);
     }
 }

@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 
 public interface OnItemClickListener{
     /**
-     * callback item click
+     * Callback item click
      * @param parent
      * @param v
      * @param position

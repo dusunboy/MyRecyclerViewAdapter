@@ -4,13 +4,16 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.myrecyclerviewadapter.vincent.app.adapter.StringAdapter;
+import com.myrecyclerviewadapter.vincent.lib.BaseItemTouchHelperCallback;
 import com.myrecyclerviewadapter.vincent.lib.OnItemClickListener;
 import com.myrecyclerviewadapter.vincent.lib.OnItemLongClickListener;
 import com.myrecyclerviewadapter.vincent.lib.OnItemOtherViewClickListener;
@@ -33,9 +36,8 @@ public class GridActivity extends AppCompatActivity implements OnItemClickListen
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(linearLayoutManager);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 5);
+        recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         ArrayList<String> strings = new ArrayList<>();
         Random random = new Random();
@@ -44,6 +46,16 @@ public class GridActivity extends AppCompatActivity implements OnItemClickListen
                     "->" + String.valueOf(random.nextInt(1000)));
         }
         stringAdapter = new StringAdapter(R.layout.item_text_image, strings);
+        View item_header = LayoutInflater.from(this).inflate(R.layout.item_header, null);
+        View item_footer = LayoutInflater.from(this).inflate(R.layout.item_footer, null);
+        stringAdapter.addHeaderView(item_header);
+        stringAdapter.addFooterView(item_footer);
+        //drag and swipe
+        BaseItemTouchHelperCallback<String> baseItemTouchHelperCallback = new BaseItemTouchHelperCallback<String>(stringAdapter, strings);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(baseItemTouchHelperCallback);
+        stringAdapter.setItemTouchHelper(itemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
         recyclerView.setAdapter(stringAdapter);
         stringAdapter.setOnItemClickListener(this);
         stringAdapter.setOnItemLongClickListener(this);

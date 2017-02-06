@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 public interface OnItemLongClickListener {
 
     /**
-     * callback item long click
+     * Callback item long click
      * @param parent
      * @param v
      * @param position

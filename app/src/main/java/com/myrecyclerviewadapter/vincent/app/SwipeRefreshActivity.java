@@ -2,6 +2,7 @@ package com.myrecyclerviewadapter.vincent.app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,27 +15,26 @@ import com.myrecyclerviewadapter.vincent.lib.OnItemClickListener;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements OnItemClickListener {
 
-    private RecyclerView recyclerView;
+/**
+ * Created by Vincent on 2017/2/6.
+ */
+public class SwipeRefreshActivity extends AppCompatActivity implements OnItemClickListener {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         ArrayList<String> strings = new ArrayList<>();
-        strings.add("List View");
-        strings.add("Grid View");
-        strings.add("List Multi View");
-        strings.add("Grid Multi View");
-        strings.add("SwipeRefreshLayout View");
+        strings.add("SwipeRefresh List View");
+        strings.add("SwipeRefresh Grid View");
         StringAdapter stringAdapter = new StringAdapter(R.layout.item_text, strings);
         recyclerView.setAdapter(stringAdapter);
         stringAdapter.setOnItemClickListener(this);
@@ -44,19 +44,10 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     public void onItemClick(ViewGroup parent, View v, int position) {
         switch (position) {
             case 0:
-                startActivity(new Intent(this, ListActivity.class));
+                startActivity(new Intent(this, SwipeRefreshListActivity.class));
                 break;
             case 1:
-                startActivity(new Intent(this, GridActivity.class));
-                break;
-            case 2:
-                startActivity(new Intent(this, ListMultiActivity.class));
-                break;
-            case 3:
-                startActivity(new Intent(this, GridMultiActivity.class));
-                break;
-            case 4:
-                startActivity(new Intent(this, SwipeRefreshActivity.class));
+                startActivity(new Intent(this, SwipeRefreshGridActivity.class));
                 break;
         }
     }

@@ -1,16 +1,21 @@
 package com.myrecyclerviewadapter.vincent.lib;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +28,9 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
     private static final int HEADER_VIEW = 0;
     public static final int FOOTER_VIEW = 1;
     private static final int LIST_VIEW = 2;
+    private static final int LOADING_VIEW = 3;
+    private static final int LOAD_MORE = 40;
+    private static final int LOAD_FAILED = 41;
     private List<View> headerViews;
     private List<View> footerViews;
     private int layoutResId;
@@ -33,6 +41,9 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
     private OnItemLongClickListener onItemLongClickListener;
     protected OnItemOtherViewClickListener onItemOtherClickListener;
     protected ItemTouchHelper itemTouchHelper;
+    private OnLoadMoreListener onLoadMoreListener;
+    private boolean isLoading;
+    private boolean isLoadMoreComplete;
 
     public BaseRecyclerViewAdapter(int layoutResId, List<T> list) {
         this.layoutResId = layoutResId;
@@ -53,63 +64,98 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
                 k = createBaseViewHolder(parent, headerViews.get(position));
                 break;
             case FOOTER_VIEW:
-                position = (viewType - FOOTER_VIEW) / 10 - list.size();
+                position = (viewType - FOOTER_VIEW) / 10 - list.size() - 1;
                 k = createBaseViewHolder(parent, footerViews.get(position));
                 break;
             case LIST_VIEW:
                 k = createBaseViewHolder(parent, layoutResId);
                 break;
-        }
-        if (k != null && viewTypeMod == LIST_VIEW) {
-            final int position = (viewType - LIST_VIEW) / 10 - getHeaderViewsCount();
-            k.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onItemClickListener != null) {
-                        onItemClickListener.onItemClick(parent, v, position);
-                    }
-                }
-            });
-            k.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (onItemLongClickListener != null) {
-                        onItemLongClickListener.onItemLongClick(parent, v, position);
-                    }
-                    return true;
-                }
-            });
+            case LOADING_VIEW:
+                ProgressBar progressBar = new ProgressBar(context);
+                k = createBaseViewHolder(parent, progressBar);
+                break;
         }
         return k;
     }
 
     @Override
-    public void onBindViewHolder(K k, int position) {
+    public void onBindViewHolder(final K k, int position) {
         int viewType = k.getItemViewType();
         int viewTypeMod = viewType % 10;
         switch (viewTypeMod) {
             case LIST_VIEW:
-                position = position - getHeaderViewsCount();
+                position = k.getAdapterPosition() - getHeaderViewsCount();
                 onBindView(k, list.get(position), position);
+                final int finalPosition = position;
+                k.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (onItemClickListener != null) {
+                                onItemClickListener.onItemClick(k.getParent(), v, finalPosition);
+                            }
+                        }
+                    });
+                    k.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            if (onItemLongClickListener != null) {
+                                onItemLongClickListener.onItemLongClick(k.getParent(), v, finalPosition);
+                            }
+                            return true;
+                        }
+                    });
                 break;
         }
     }
 
     @Override
     public int getItemViewType(int position) {
+        //check scroll to bottom
+        Message message = new Message();
+        message.what = LOAD_MORE;
+        message.arg1 = position;
+        handler.sendMessageDelayed(message, 100);
+        if (isLoading) {
+            if (position == getItemCount() - 1) {
+                return LOADING_VIEW;
+            }
+        }
+        // 下滑到底部 跑方法onLoadMore（）；
+        //notifyDataSetChanged -》isLoading = true isLoadMoreComplete = false LOADING_VIEW
+        //notifyDataSetChanged -》isLoading = false isLoadMoreComplete = true
+        //重新下滑
         if (position < getHeaderViewsCount()) {
             return HEADER_VIEW + position * 10;
         } else if (position >= (list.size() + getHeaderViewsCount())) {
             return FOOTER_VIEW + position * 10;
         } else {
-            return LIST_VIEW + position * 10;
+            return LIST_VIEW;
         }
     }
 
     @Override
     public int getItemCount() {
-        return getHeaderViewsCount() + list.size() + getFooterViewsCount();
+        return getHeaderViewsCount() + list.size()
+                + getFooterViewsCount() + (isLoading ? 1 : 0);
     }
+
+    @Override
+    public void onAttachedToRecyclerView(final RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
+        if (manager instanceof GridLayoutManager) {
+            final GridLayoutManager gridManager = ((GridLayoutManager) manager);
+            gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    int viewType = getItemViewType(position);
+                    int viewTypeMod = viewType % 10;
+                    return (viewTypeMod == HEADER_VIEW || viewTypeMod == FOOTER_VIEW) ? gridManager.getSpanCount() : 1;
+                }
+            });
+        }
+    }
+
 
     /**
      * create BaseViewHolder
@@ -242,7 +288,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      */
     public void add(T t) {
         list.add(t);
-        notifyItemInserted(list.size());
+        notifyItemInserted(getHeaderViewsCount() + list.size());
     }
 
     /**
@@ -252,7 +298,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      */
     public void add(int position, T t) {
         list.add(position, t);
-        notifyItemInserted(position);
+        notifyItemInserted(getHeaderViewsCount() + position);
     }
 
     /**
@@ -261,7 +307,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      */
     public void addAll(List<T> t) {
         list.addAll(t);
-        notifyItemInserted(list.size());
+        notifyItemInserted(getHeaderViewsCount() + list.size());
     }
 
     /**
@@ -271,7 +317,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      */
     public void addAll(int position, List<T> t) {
         list.addAll(position, t);
-        notifyItemRangeInserted(position, t.size());
+        notifyItemRangeInserted(getHeaderViewsCount() + position, t.size());
     }
 
     /**
@@ -281,7 +327,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
     public void remove(T t) {
         int position = list.indexOf(t);
         if (list.remove(t)) {
-            notifyItemRemoved(position);
+            notifyItemRemoved(getHeaderViewsCount() + position);
         }
     }
 
@@ -291,7 +337,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      */
     public void remove(int position) {
         list.remove(position);
-        notifyItemRemoved(position);
+        notifyItemRemoved(getHeaderViewsCount() + position);
     }
 
     /**
@@ -547,5 +593,59 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
     public String getString(@StringRes int resId, Object... formatArgs) {
         return context.getString(resId, formatArgs);
     }
+
+    /**
+     * Register a callback to be invoked when scroll to bottom.
+     * @param onLoadMoreListener
+     */
+    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
+        this.onLoadMoreListener = onLoadMoreListener;
+    }
+
+    /**
+     * set Loading Mode
+     * @param isLoading
+     */
+    public void setLoading(boolean isLoading) {
+        this.isLoading = isLoading;
+        if (isLoading) {
+            isLoadMoreComplete = false;
+            notifyItemInserted(getItemCount());
+        } else {
+            isLoadMoreComplete = true;
+            handler.sendEmptyMessageDelayed(LOAD_FAILED, 300);
+            notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * get isLoading
+     * @return
+     */
+    public boolean isLoading() {
+        return isLoading;
+    }
+
+    @SuppressLint("HandlerLeak")
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case LOAD_MORE:
+                    if (!isLoading && onLoadMoreListener != null && !isLoadMoreComplete) {
+                        int position = msg.arg1;
+                        if (getItemCount() > headerViews.size() && position == getItemCount() - 1) {
+                            onLoadMoreListener.onLoadMore();
+                        }
+                    }
+                    break;
+                case LOAD_FAILED:
+                    isLoadMoreComplete = false;
+                    break;
+            }
+        }
+    };
+
 
 }

@@ -1,5 +1,7 @@
 package com.myrecyclerviewadapter.vincent.app.adapter;
 
+import android.support.v4.view.MotionEventCompat;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,6 +31,19 @@ public class StringAdapter extends BaseRecyclerViewAdapter<String, BaseViewHolde
                 @Override
                 public void onClick(View v) {
                     onItemOtherClickListener.OnItemOtherViewClick(baseViewHolder.itemView, v, position);
+                }
+            });
+        }
+        if (iv != null) {
+            iv.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (itemTouchHelper != null) {
+                        if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                            itemTouchHelper.startDrag(baseViewHolder);
+                        }
+                    }
+                    return false;
                 }
             });
         }

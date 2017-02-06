@@ -3,6 +3,7 @@
     package="com.myrecyclerviewadapter.vincent.app" >
 
     <application
+        android:name=".MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -17,6 +18,11 @@
         </activity>
         <activity android:name=".ListActivity"/>
         <activity android:name=".GridActivity"/>
+        <activity android:name=".ListMultiActivity"/>
+        <activity android:name=".GridMultiActivity"/>
+        <activity android:name=".SwipeRefreshActivity"/>
+        <activity android:name=".SwipeRefreshListActivity"/>
+        <activity android:name=".SwipeRefreshGridActivity"/>
     </application>
 
 </manifest>

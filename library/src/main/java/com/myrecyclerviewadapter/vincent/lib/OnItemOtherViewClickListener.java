@@ -9,7 +9,7 @@ import android.view.View;
 public interface OnItemOtherViewClickListener {
 
     /**
-     * callback item other view click
+     * Callback item other view click
      * @param parent
      * @param v
      * @param position
