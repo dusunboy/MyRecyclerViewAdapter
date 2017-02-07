@@ -32,9 +32,12 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         ArrayList<String> strings = new ArrayList<>();
         strings.add("List View");
         strings.add("Grid View");
+        strings.add("StaggeredGrid View");
         strings.add("List Multi View");
         strings.add("Grid Multi View");
+        strings.add("StaggeredGrid Multi View");
         strings.add("SwipeRefreshLayout View");
+        strings.add("SwipeRefreshLayout Multi View");
         StringAdapter stringAdapter = new StringAdapter(R.layout.item_text, strings);
         recyclerView.setAdapter(stringAdapter);
         stringAdapter.setOnItemClickListener(this);
@@ -50,13 +53,22 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 startActivity(new Intent(this, GridActivity.class));
                 break;
             case 2:
-                startActivity(new Intent(this, ListMultiActivity.class));
+                startActivity(new Intent(this, StaggeredGridActivity.class));
                 break;
             case 3:
-                startActivity(new Intent(this, GridMultiActivity.class));
+                startActivity(new Intent(this, ListMultiActivity.class));
                 break;
             case 4:
+                startActivity(new Intent(this, GridMultiActivity.class));
+                break;
+            case 5:
+                startActivity(new Intent(this, StaggeredGridMultiActivity.class));
+                break;
+            case 6:
                 startActivity(new Intent(this, SwipeRefreshActivity.class));
+                break;
+            case 7:
+                startActivity(new Intent(this, SwipeRefreshMultiActivity.class));
                 break;
         }
     }

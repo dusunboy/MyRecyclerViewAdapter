@@ -1,20 +1,23 @@
 package com.myrecyclerviewadapter.vincent.lib;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import java.util.ArrayList;
@@ -29,8 +32,6 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
     public static final int FOOTER_VIEW = 1;
     private static final int LIST_VIEW = 2;
     private static final int LOADING_VIEW = 3;
-    private static final int LOAD_MORE = 40;
-    private static final int LOAD_FAILED = 41;
     private List<View> headerViews;
     private List<View> footerViews;
     private int layoutResId;
@@ -43,7 +44,9 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
     protected ItemTouchHelper itemTouchHelper;
     private OnLoadMoreListener onLoadMoreListener;
     private boolean isLoading;
-    private boolean isLoadMoreComplete;
+    private boolean isLoadMore;
+    private View loadingView;
+    private boolean loadMoreEnable;
 
     public BaseRecyclerViewAdapter(int layoutResId, List<T> list) {
         this.layoutResId = layoutResId;
@@ -71,8 +74,17 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
                 k = createBaseViewHolder(parent, layoutResId);
                 break;
             case LOADING_VIEW:
-                ProgressBar progressBar = new ProgressBar(context);
-                k = createBaseViewHolder(parent, progressBar);
+                if (loadingView != null) {
+                    k = createBaseViewHolder(parent, loadingView);
+                } else {
+                    ProgressBar progressBar = new ProgressBar(context);
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT);
+                    layoutParams.gravity = Gravity.CENTER;
+                    layoutParams.bottomMargin = dp2px(5);
+                    progressBar.setLayoutParams(layoutParams);
+                    k = createBaseViewHolder(parent, progressBar);
+                }
                 break;
         }
         return k;
@@ -110,20 +122,11 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
 
     @Override
     public int getItemViewType(int position) {
-        //check scroll to bottom
-        Message message = new Message();
-        message.what = LOAD_MORE;
-        message.arg1 = position;
-        handler.sendMessageDelayed(message, 100);
         if (isLoading) {
             if (position == getItemCount() - 1) {
                 return LOADING_VIEW;
             }
         }
-        // 下滑到底部 跑方法onLoadMore（）；
-        //notifyDataSetChanged -》isLoading = true isLoadMoreComplete = false LOADING_VIEW
-        //notifyDataSetChanged -》isLoading = false isLoadMoreComplete = true
-        //重新下滑
         if (position < getHeaderViewsCount()) {
             return HEADER_VIEW + position * 10;
         } else if (position >= (list.size() + getHeaderViewsCount())) {
@@ -142,18 +145,94 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
     @Override
     public void onAttachedToRecyclerView(final RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
-        if (manager instanceof GridLayoutManager) {
-            final GridLayoutManager gridManager = ((GridLayoutManager) manager);
+        final RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager instanceof GridLayoutManager) {
+            final GridLayoutManager gridManager = ((GridLayoutManager) layoutManager);
             gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
                     int viewType = getItemViewType(position);
                     int viewTypeMod = viewType % 10;
-                    return (viewTypeMod == HEADER_VIEW || viewTypeMod == FOOTER_VIEW) ? gridManager.getSpanCount() : 1;
+                    return (viewTypeMod == HEADER_VIEW ||
+                            viewTypeMod == FOOTER_VIEW ||
+                            viewTypeMod == LOADING_VIEW) ? gridManager.getSpanCount() : 1;
                 }
             });
         }
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            public int lastVisibleItemPosition = -1;
+            public int firstVisibleItemPosition;
+            public int totalItemCount;
+            public int visibleItemCount;
+            public int dy;
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                this.dy = dy;
+                if (layoutManager instanceof GridLayoutManager) {
+                    GridLayoutManager gridLayoutManager = ((GridLayoutManager) layoutManager);
+                    visibleItemCount = gridLayoutManager.getChildCount();
+                    totalItemCount = getItemCount();
+                    firstVisibleItemPosition = gridLayoutManager.findFirstVisibleItemPosition();
+                } else if (layoutManager instanceof LinearLayoutManager) {
+                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) layoutManager);
+                    visibleItemCount = linearLayoutManager.getChildCount();
+                    totalItemCount = getItemCount();
+                    firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                } else if (layoutManager instanceof StaggeredGridLayoutManager) {
+                    totalItemCount = getItemCount();
+                    StaggeredGridLayoutManager staggeredGridLayoutManager =
+                            (StaggeredGridLayoutManager) layoutManager;
+                    int[] lastPositions = new int[staggeredGridLayoutManager.getSpanCount()];
+                    staggeredGridLayoutManager.findLastVisibleItemPositions(lastPositions);
+                    lastVisibleItemPosition = findMax(lastPositions);
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (lastVisibleItemPosition > 0) {
+                    // StaggeredGridLayoutManager keeps a mapping between spans and items.
+                    StaggeredGridLayoutManager staggeredGridLayoutManager =
+                            (StaggeredGridLayoutManager) layoutManager;
+                    staggeredGridLayoutManager.invalidateSpanAssignments();
+                }
+                if (loadMoreEnable && dy > 0) {
+                    if (!isLoadMore && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        Log.i("onScrollStateChanged",
+                         String.valueOf(visibleItemCount) + ":" + String.valueOf(firstVisibleItemPosition)
+                                + ":" + String.valueOf(totalItemCount) + ":" + String.valueOf(lastVisibleItemPosition));
+                        if (lastVisibleItemPosition > 0) {
+                            if (lastVisibleItemPosition >= totalItemCount - 1) {
+                                isLoadMore = true;
+                                if (onLoadMoreListener != null) {
+                                    onLoadMoreListener.onLoadMore();
+                                }
+                            }
+                        } else {
+                            if (firstVisibleItemPosition != 0 && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount) {
+                                isLoadMore = true;
+                                if (onLoadMoreListener != null) {
+                                    onLoadMoreListener.onLoadMore();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            private int findMax(int[] lastPositions) {
+                int max = lastPositions[0];
+                for (int value : lastPositions) {
+                    if (value > max) {
+                        max = value;
+                    }
+                }
+                return max;
+            }
+        });
     }
 
 
@@ -205,7 +284,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      */
     public void onItemSelected() {
 
-    };
+    }
 
     /**
      * {@link android.support.v7.widget.helper.ItemTouchHelper} <br/>
@@ -213,7 +292,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      */
     public void onItemClear() {
 
-    };
+    }
 
     /**
      * Returns a new view hierarchy from the specified xml resource
@@ -599,6 +678,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      * @param onLoadMoreListener
      */
     public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
+        loadMoreEnable = true;
         this.onLoadMoreListener = onLoadMoreListener;
     }
 
@@ -609,12 +689,10 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
     public void setLoading(boolean isLoading) {
         this.isLoading = isLoading;
         if (isLoading) {
-            isLoadMoreComplete = false;
             notifyItemInserted(getItemCount());
         } else {
-            isLoadMoreComplete = true;
-            handler.sendEmptyMessageDelayed(LOAD_FAILED, 300);
             notifyDataSetChanged();
+            isLoadMore = false;
         }
     }
 
@@ -626,26 +704,66 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
         return isLoading;
     }
 
-    @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case LOAD_MORE:
-                    if (!isLoading && onLoadMoreListener != null && !isLoadMoreComplete) {
-                        int position = msg.arg1;
-                        if (getItemCount() > headerViews.size() && position == getItemCount() - 1) {
-                            onLoadMoreListener.onLoadMore();
-                        }
-                    }
-                    break;
-                case LOAD_FAILED:
-                    isLoadMoreComplete = false;
-                    break;
-            }
+    /**
+     * dp convert px
+     * @param dpVal
+     * @return
+     */
+    private int dp2px(float dpVal)
+    {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                dpVal, context.getResources().getDisplayMetrics());
+    }
+
+    /**
+     * set loading view
+     * @param loadingView
+     */
+    public void setLoadingView(View loadingView) {
+        this.loadingView = loadingView;
+    }
+
+
+    /**
+     * Enable {@link OnLoadMoreListener}
+     * @param loadMoreEnable
+     */
+    public void setLoadMoreEnable(boolean loadMoreEnable) {
+        this.loadMoreEnable = loadMoreEnable;
+        if (!loadMoreEnable && isLoading) {
+            setLoading(false);
         }
-    };
+    }
+
+//    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+//        super.onViewAttachedToWindow(holder);
+//        if (isStaggeredGridLayout(holder)) {
+//            handleLayoutIfStaggeredGridLayout(holder, holder.getLayoutPosition());
+//        }
+//    }
 
 
+    @Override
+    public void onViewAttachedToWindow(K holder) {
+        super.onViewAttachedToWindow(holder);
+        if (isStaggeredGridLayout(holder)) {
+            handleLayoutIfStaggeredGridLayout(holder, holder.getLayoutPosition());
+        }
+    }
+
+    private boolean isStaggeredGridLayout(RecyclerView.ViewHolder holder) {
+        ViewGroup.LayoutParams layoutParams = holder.itemView.getLayoutParams();
+        if (layoutParams != null && layoutParams instanceof StaggeredGridLayoutManager.LayoutParams) {
+            return true;
+        }
+        return false;
+    }
+
+    protected void handleLayoutIfStaggeredGridLayout(RecyclerView.ViewHolder holder, int position) {
+        if (position < getHeaderViewsCount()
+                || position >= (list.size() + getHeaderViewsCount()) || isLoading) {
+            StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
+            p.setFullSpan(true);
+        }
+    }
 }

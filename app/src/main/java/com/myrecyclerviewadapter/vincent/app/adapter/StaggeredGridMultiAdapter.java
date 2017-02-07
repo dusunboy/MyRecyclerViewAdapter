@@ -11,14 +11,14 @@ import com.myrecyclerviewadapter.vincent.lib.BaseViewHolder;
 import java.util.List;
 
 /**
- * Created by Vincent on 2017/2/6.
+ * Created by Vincent on 2017/2/7.
  */
-public class ListMultiAdapter extends BaseMultiRecyclerViewAdapter<BaseViewHolder> {
+public class StaggeredGridMultiAdapter extends BaseMultiRecyclerViewAdapter<BaseViewHolder> {
 
     private static final int TEXT = 0;
     private static final int IMAGE = 1;
 
-    public ListMultiAdapter(List<Object> list) {
+    public StaggeredGridMultiAdapter(List<Object> list) {
         super(list);
     }
 
@@ -42,7 +42,6 @@ public class ListMultiAdapter extends BaseMultiRecyclerViewAdapter<BaseViewHolde
                 return 0;
         }
     }
-
 
     @Override
     protected void onBindView(BaseViewHolder baseViewHolder, Object object, int position) {

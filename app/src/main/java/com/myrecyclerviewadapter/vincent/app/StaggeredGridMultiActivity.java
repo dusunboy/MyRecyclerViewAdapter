@@ -4,13 +4,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.myrecyclerviewadapter.vincent.app.adapter.GridMultiAdapter;
+import com.myrecyclerviewadapter.vincent.app.adapter.StaggeredGridMultiAdapter;
 import com.myrecyclerviewadapter.vincent.app.model.DemoBean;
 import com.myrecyclerviewadapter.vincent.app.model.DemoImageBean;
 import com.myrecyclerviewadapter.vincent.lib.OnItemClickListener;
@@ -21,48 +21,50 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Created by Vincent on 2017/2/6.
+ * Created by Vincent on 2017/2/7.
  */
-public class GridMultiActivity extends AppCompatActivity implements OnItemClickListener, OnItemLongClickListener, OnItemOtherViewClickListener {
+public class StaggeredGridMultiActivity extends AppCompatActivity implements OnItemClickListener, OnItemLongClickListener, OnItemOtherViewClickListener {
 
     private RecyclerView recyclerView;
-    private GridMultiAdapter gridMultiAdapter;
+    private StaggeredGridMultiAdapter staggeredGridMultiAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
-        setTitle("GridMultiActivity");
+        setTitle("StaggeredGridMultiActivity");
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        recyclerView.setHasFixedSize(true);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
-        recyclerView.setLayoutManager(gridLayoutManager);
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(
+                2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         Random random = new Random();
         ArrayList<Object> list = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            DemoBean demoBean = new DemoBean();
-            demoBean.setString("List View data: " + String.valueOf(i) +
-                    "->" + String.valueOf(random.nextInt(1000)));
-            list.add(demoBean);
+        for (int i = 0; i < 21; i++) {
+            if (i % 2 == 0) {
+                DemoBean demoBean = new DemoBean();
+                demoBean.setString("List View data: " + String.valueOf(i) +
+                        "->" + String.valueOf(random.nextInt(1000)));
+                list.add(demoBean);
+            } else {
+                DemoImageBean demoImageBean = new DemoImageBean();
+                demoImageBean.setString("List Image View data: " + String.valueOf(i) +
+                        "->" + String.valueOf(random.nextInt(1000)));
+                list.add(demoImageBean);
+            }
+
         }
-        for (int i = 0; i < 12; i++) {
-            DemoImageBean demoImageBean = new DemoImageBean();
-            demoImageBean.setString("List Image View data: " + String.valueOf(i) +
-                    "->" + String.valueOf(random.nextInt(1000)));
-            list.add(demoImageBean);
-        }
-        gridMultiAdapter = new GridMultiAdapter(list);
-        recyclerView.setAdapter(gridMultiAdapter);
-        gridMultiAdapter.setOnItemClickListener(this);
-        gridMultiAdapter.setOnItemLongClickListener(this);
-        gridMultiAdapter.setOnItemOtherClickListener(this);
+        staggeredGridMultiAdapter = new StaggeredGridMultiAdapter(list);
+        recyclerView.setAdapter(staggeredGridMultiAdapter);
+        staggeredGridMultiAdapter.setOnItemClickListener(this);
+        staggeredGridMultiAdapter.setOnItemLongClickListener(this);
+        staggeredGridMultiAdapter.setOnItemOtherClickListener(this);
     }
 
     @Override
     public void onItemClick(ViewGroup parent, View v, int position) {
-        Object object = gridMultiAdapter.get(position);
+        Object object = staggeredGridMultiAdapter.get(position);
         if (object instanceof DemoBean) {
             Toast.makeText(this, "onItemClick:" + ((DemoBean) object).getString(),
                     Toast.LENGTH_SHORT).show();
@@ -74,7 +76,7 @@ public class GridMultiActivity extends AppCompatActivity implements OnItemClickL
 
     @Override
     public void onItemLongClick(ViewGroup parent, View v, int position) {
-        Object object = gridMultiAdapter.get(position);
+        Object object = staggeredGridMultiAdapter.get(position);
         if (object instanceof DemoBean) {
             Toast.makeText(this, "onItemLongClick:" + ((DemoBean) object).getString(),
                     Toast.LENGTH_SHORT).show();
@@ -86,7 +88,7 @@ public class GridMultiActivity extends AppCompatActivity implements OnItemClickL
 
     @Override
     public void OnItemOtherViewClick(View parent, View v, int position) {
-        Object object = gridMultiAdapter.get(position);
+        Object object = staggeredGridMultiAdapter.get(position);
         if (object instanceof DemoBean) {
             Toast.makeText(this, "OnItemOtherViewClick:" +((DemoBean) object).getString(),
                     Toast.LENGTH_SHORT).show();

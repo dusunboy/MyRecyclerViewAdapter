@@ -23,7 +23,7 @@ public class GridMultiAdapter extends BaseMultiRecyclerViewAdapter<BaseViewHolde
     }
 
     @Override
-    public int getItemViewType(int position) {
+    public int getMyItemViewType(int position) {
         if (get(position) instanceof DemoBean) {
             return TEXT;
         } else {

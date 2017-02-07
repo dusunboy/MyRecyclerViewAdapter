@@ -4,15 +4,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.myrecyclerviewadapter.vincent.app.adapter.StringAdapter;
+import com.myrecyclerviewadapter.vincent.app.adapter.StaggeredGridAdapter;
 import com.myrecyclerviewadapter.vincent.lib.BaseItemTouchHelperCallback;
 import com.myrecyclerviewadapter.vincent.lib.OnItemClickListener;
 import com.myrecyclerviewadapter.vincent.lib.OnItemLongClickListener;
@@ -22,63 +22,67 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Created by Administrator on 2017/2/4.
+ * Created by Vincent on 2017/2/7.
  */
-public class ListActivity extends AppCompatActivity implements OnItemClickListener, OnItemOtherViewClickListener, OnItemLongClickListener {
+public class StaggeredGridActivity extends AppCompatActivity implements OnItemClickListener, OnItemLongClickListener, OnItemOtherViewClickListener {
 
-    private StringAdapter stringAdapter;
+    private StaggeredGridAdapter staggeredGridAdapter;
     private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-       super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
-        setTitle("ListActivity");
+        setTitle("StaggeredGridActivity");
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        recyclerView.setHasFixedSize(true);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(linearLayoutManager);
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(
+                2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         ArrayList<String> strings = new ArrayList<>();
         Random random = new Random();
-        for (int i = 0; i < 20; i++) {
-            strings.add("List View data: " + String.valueOf(i) +
-                    "->" + String.valueOf(random.nextInt(1000)));
+        for (int i = 0; i < 21; i++) {
+            if (i % 2 == 0) {
+                strings.add("" + String.valueOf(i) +
+                        "->" + String.valueOf(random.nextInt(1000)));
+            } else {
+                strings.add("List View data: " + String.valueOf(i) +
+                        "->" + String.valueOf(random.nextInt(1000)));
+            }
         }
-        stringAdapter = new StringAdapter(R.layout.item_text_image, strings);
+        staggeredGridAdapter = new StaggeredGridAdapter(R.layout.item_staggered_grid, strings);
         View item_header = LayoutInflater.from(this).inflate(R.layout.item_header, null);
         View item_footer = LayoutInflater.from(this).inflate(R.layout.item_footer, null);
-        stringAdapter.addHeaderView(item_header);
-        stringAdapter.addFooterView(item_footer);
+        staggeredGridAdapter.addHeaderView(item_header);
+        staggeredGridAdapter.addFooterView(item_footer);
         //drag and swipe
-        BaseItemTouchHelperCallback<String> baseItemTouchHelperCallback = new BaseItemTouchHelperCallback<String>(stringAdapter, strings);
+        BaseItemTouchHelperCallback<String> baseItemTouchHelperCallback = new BaseItemTouchHelperCallback<String>(staggeredGridAdapter, strings);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(baseItemTouchHelperCallback);
-        stringAdapter.setItemTouchHelper(itemTouchHelper);
+        staggeredGridAdapter.setItemTouchHelper(itemTouchHelper);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
-        recyclerView.setAdapter(stringAdapter);
-        stringAdapter.setOnItemClickListener(this);
-        stringAdapter.setOnItemLongClickListener(this);
-        stringAdapter.setOnItemOtherClickListener(this);
+        recyclerView.setAdapter(staggeredGridAdapter);
+        staggeredGridAdapter.setOnItemClickListener(this);
+        staggeredGridAdapter.setOnItemLongClickListener(this);
+        staggeredGridAdapter.setOnItemOtherClickListener(this);
     }
 
     @Override
     public void onItemClick(ViewGroup parent, View v, int position) {
-        Toast.makeText(this, "onItemClick:" + stringAdapter.get(position),
+        Toast.makeText(this, "onItemClick:" + staggeredGridAdapter.get(position),
                 Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void OnItemOtherViewClick(View parent, View v, int position) {
-        Toast.makeText(this, "OnItemOtherViewClick:" + stringAdapter.get(position),
+        Toast.makeText(this, "OnItemOtherViewClick:" + staggeredGridAdapter.get(position),
                 Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onItemLongClick(ViewGroup parent, View v, int position) {
-        Toast.makeText(this, "onItemLongClick:" + stringAdapter.get(position),
+        Toast.makeText(this, "onItemLongClick:" + staggeredGridAdapter.get(position),
                 Toast.LENGTH_SHORT).show();
     }
 }

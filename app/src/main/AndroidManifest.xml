@@ -23,6 +23,12 @@
         <activity android:name=".SwipeRefreshActivity"/>
         <activity android:name=".SwipeRefreshListActivity"/>
         <activity android:name=".SwipeRefreshGridActivity"/>
+        <activity android:name=".SwipeRefreshMultiActivity"/>
+        <activity android:name=".SwipeRefreshMultiListActivity"/>
+        <activity android:name=".SwipeRefreshMultiGridActivity"/>
+        <activity android:name=".StaggeredGridActivity"/>
+        <activity android:name=".StaggeredGridMultiActivity"/>
+        <activity android:name=".SwipeRefreshStaggeredGridActivity"/>
     </application>
 
 </manifest>

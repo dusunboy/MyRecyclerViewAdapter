@@ -6,11 +6,18 @@ import android.content.res.Resources;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import java.util.List;
 
@@ -19,6 +26,7 @@ import java.util.List;
  */
 public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> extends RecyclerView.Adapter<K>{
 
+    private static final int LOADING_VIEW = 100003;
     protected List<Object> list;
     protected Context context;
     private LayoutInflater layoutInflater;
@@ -26,14 +34,32 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
     private OnItemLongClickListener onItemLongClickListener;
     protected OnItemOtherViewClickListener onItemOtherClickListener;
     protected ItemTouchHelper itemTouchHelper;
+    private OnLoadMoreListener onLoadMoreListener;
+    private boolean isLoading;
+    private View loadingView;
+    private boolean loadMoreEnable;
+    private boolean isLoadMore;
 
     public BaseMultiRecyclerViewAdapter(List<Object> list) {
         this.list = list;
     }
 
-
     @Override
-    public abstract int getItemViewType(int position);
+    public int getItemViewType(int position) {
+        if (isLoading) {
+            if (position == getItemCount() - 1) {
+                return LOADING_VIEW;
+            }
+        }
+        return getMyItemViewType(position);
+    }
+
+    /**
+     * Return the view type of the item at position for the purposes of view recycling.
+     * @param position
+     * @return
+     */
+    public abstract int getMyItemViewType(int position);
 
     /**
      * The layout to inflate for the object for this viewType
@@ -49,6 +75,19 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
         this.context = parent.getContext();
         layoutInflater = LayoutInflater.from(context);
         switch (viewType) {
+            case LOADING_VIEW:
+                if (loadingView != null) {
+                    k = createBaseViewHolder(parent, loadingView);
+                } else {
+                    ProgressBar progressBar = new ProgressBar(context);
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT);
+                    layoutParams.gravity = Gravity.CENTER;
+                    layoutParams.bottomMargin = dp2px(5);
+                    progressBar.setLayoutParams(layoutParams);
+                    k = createBaseViewHolder(parent, progressBar);
+                }
+                break;
             default:
                 k = createBaseViewHolder(parent, getItemView(parent, getLayoutResId(viewType)));
                 break;
@@ -58,31 +97,89 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
 
     @Override
     public void onBindViewHolder(final K k, int position) {
-        onBindView(k, list.get(position), position);
-        k.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(k.getParent(), v, k.getAdapterPosition());
+        int viewType = k.getItemViewType();
+        if (viewType != LOADING_VIEW) {
+            onBindView(k, list.get(position), position);
+            k.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemClickListener != null) {
+                        onItemClickListener.onItemClick(k.getParent(), v, k.getAdapterPosition());
+                    }
                 }
-            }
-        });
-        k.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (onItemLongClickListener != null) {
-                    onItemLongClickListener.onItemLongClick(k.getParent(), v, k.getAdapterPosition());
+            });
+            k.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (onItemLongClickListener != null) {
+                        onItemLongClickListener.onItemLongClick(k.getParent(), v, k.getAdapterPosition());
+                    }
+                    return true;
                 }
-                return true;
-            }
-        });
+            });
+        }
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return list.size() + (isLoading ? 1 : 0);
     }
 
+    @Override
+    public void onAttachedToRecyclerView(final RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        final RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
+        if (manager instanceof GridLayoutManager) {
+            final GridLayoutManager gridManager = ((GridLayoutManager) manager);
+            gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    int viewType = getItemViewType(position);
+                    return (viewType == LOADING_VIEW) ? gridManager.getSpanCount() : 1;
+                }
+            });
+        }
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            public int firstVisibleItems;
+            public int totalItemCount;
+            public int visibleItemCount;
+            public int dy;
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                this.dy = dy;
+                if (manager instanceof GridLayoutManager) {
+                    GridLayoutManager gridLayoutManager = ((GridLayoutManager) manager);
+                    visibleItemCount = gridLayoutManager.getChildCount();
+                    totalItemCount = getItemCount();
+                    firstVisibleItems = gridLayoutManager.findFirstVisibleItemPosition();
+                } else if (manager instanceof LinearLayoutManager) {
+                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) manager);
+                    visibleItemCount = linearLayoutManager.getChildCount();
+                    totalItemCount = getItemCount();
+                    firstVisibleItems = linearLayoutManager.findFirstVisibleItemPosition();
+                } else if (manager instanceof StaggeredGridLayoutManager) {
+
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (loadMoreEnable && dy > 0) {
+                    if (!isLoadMore && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        if (firstVisibleItems != 0 && (visibleItemCount + firstVisibleItems) >= totalItemCount) {
+                            isLoadMore = true;
+                            if (onLoadMoreListener != null) {
+                                onLoadMoreListener.onLoadMore();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     /**
      * create BaseViewHolder
@@ -132,7 +229,7 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
      */
     public void onItemSelected() {
 
-    };
+    }
 
     /**
      * {@link ItemTouchHelper} <br/>
@@ -140,7 +237,7 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
      */
     public void onItemClear() {
 
-    };
+    }
 
     /**
      * Returns a new view hierarchy from the specified xml resource
@@ -334,4 +431,64 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
         return context.getString(resId, formatArgs);
     }
 
+    /**
+     * Register a callback to be invoked when scroll to bottom.
+     * @param onLoadMoreListener
+     */
+    public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
+        loadMoreEnable = true;
+        this.onLoadMoreListener = onLoadMoreListener;
+    }
+
+    /**
+     * set Loading Mode
+     * @param isLoading
+     */
+    public void setLoading(boolean isLoading) {
+        this.isLoading = isLoading;
+        if (isLoading) {
+            notifyItemInserted(getItemCount());
+        } else {
+            notifyDataSetChanged();
+            isLoadMore = false;
+        }
+    }
+
+    /**
+     * get isLoading
+     * @return
+     */
+    public boolean isLoading() {
+        return isLoading;
+    }
+
+    /**
+     * dp convert px
+     * @param dpVal
+     * @return
+     */
+    private int dp2px(float dpVal)
+    {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                dpVal, context.getResources().getDisplayMetrics());
+    }
+
+    /**
+     * set loading view
+     * @param loadingView
+     */
+    public void setLoadingView(View loadingView) {
+        this.loadingView = loadingView;
+    }
+
+    /**
+     * Enable {@link OnLoadMoreListener}
+     * @param loadMoreEnable
+     */
+    public void setLoadMoreEnable(boolean loadMoreEnable) {
+        this.loadMoreEnable = loadMoreEnable;
+        if (!loadMoreEnable && isLoading) {
+            setLoading(false);
+        }
+    }
 }

@@ -34,9 +34,10 @@ public class ListMultiActivity extends AppCompatActivity implements OnItemClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
+        setTitle("ListMultiActivity");
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -77,10 +78,10 @@ public class ListMultiActivity extends AppCompatActivity implements OnItemClickL
     public void onItemLongClick(ViewGroup parent, View v, int position) {
         Object object = listMultiAdapter.get(position);
         if (object instanceof DemoBean) {
-            Toast.makeText(this, "OnItemOtherViewClick:" + ((DemoBean) object).getString(),
+            Toast.makeText(this, "onItemLongClick:" + ((DemoBean) object).getString(),
                     Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "OnItemOtherViewClick:" + ((DemoImageBean) object).getString(),
+            Toast.makeText(this, "onItemLongClick:" + ((DemoImageBean) object).getString(),
                     Toast.LENGTH_SHORT).show();
         }
     }
@@ -89,10 +90,10 @@ public class ListMultiActivity extends AppCompatActivity implements OnItemClickL
     public void OnItemOtherViewClick(View parent, View v, int position) {
         Object object = listMultiAdapter.get(position);
         if (object instanceof DemoBean) {
-            Toast.makeText(this, "onItemLongClick:" +((DemoBean) object).getString(),
+            Toast.makeText(this, "OnItemOtherViewClick:" +((DemoBean) object).getString(),
                     Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "onItemLongClick:" + ((DemoImageBean) object).getString(),
+            Toast.makeText(this, "OnItemOtherViewClick:" + ((DemoImageBean) object).getString(),
                     Toast.LENGTH_SHORT).show();
         }
     }

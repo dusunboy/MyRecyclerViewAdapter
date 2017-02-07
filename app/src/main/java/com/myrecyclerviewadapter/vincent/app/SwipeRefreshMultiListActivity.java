@@ -9,33 +9,33 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
 
-import com.myrecyclerviewadapter.vincent.app.adapter.StringAdapter;
+import com.myrecyclerviewadapter.vincent.app.adapter.ListMultiAdapter;
+import com.myrecyclerviewadapter.vincent.app.model.DemoBean;
+import com.myrecyclerviewadapter.vincent.app.model.DemoImageBean;
 import com.myrecyclerviewadapter.vincent.lib.OnLoadMoreListener;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Created by Vincent on 2017/2/6.
+ * Created by Vincent on 2017/2/7.
  */
-public class SwipeRefreshListActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, OnLoadMoreListener {
+public class SwipeRefreshMultiListActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, OnLoadMoreListener {
 
     private static final int INIT = 0;
     private static final int REFRESH = 1;
     private static final int LOADING = 2;
-    private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
-    private StringAdapter stringAdapter;
+    private ListMultiAdapter listMultiAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setTitle("SwipeRefreshListActivity");
         setContentView(R.layout.activity_swipe_refresh_list);
+
+        setTitle("SwipeRefreshMultiListActivity");
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
@@ -47,12 +47,10 @@ public class SwipeRefreshListActivity extends AppCompatActivity implements Swipe
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        ArrayList<String> strings = new ArrayList<>();
-        stringAdapter = new StringAdapter(R.layout.item_text_image, strings);
-        stringAdapter.setOnLoadMoreListener(this);
-        recyclerView.setAdapter(stringAdapter);
-        View item_header = LayoutInflater.from(this).inflate(R.layout.item_header, null);
-        stringAdapter.addHeaderView(item_header);
+        ArrayList<Object> list = new ArrayList<>();
+        listMultiAdapter = new ListMultiAdapter(list);
+        listMultiAdapter.setOnLoadMoreListener(this);
+        recyclerView.setAdapter(listMultiAdapter);
         initRefresh();
     }
 
@@ -69,34 +67,41 @@ public class SwipeRefreshListActivity extends AppCompatActivity implements Swipe
                 case INIT:
                     swipeRefreshLayout.setRefreshing(false);
                     Random random = new Random();
-                    ArrayList<String> strings = new ArrayList<>();
-                    for (int i = 0; i < 20; i++) {
-                        strings.add("List View data: " + String.valueOf(i) +
+                    ArrayList<Object> list = new ArrayList<>();
+                    for (int i = 0; i < 3; i++) {
+                        DemoBean demoBean = new DemoBean();
+                        demoBean.setString("List Multi View data: " + String.valueOf(i) +
                                 "->" + String.valueOf(random.nextInt(1000)));
+                        list.add(demoBean);
                     }
-                    stringAdapter.addAll(strings);
+                    for (int i = 0; i < 6; i++) {
+                        DemoImageBean demoImageBean = new DemoImageBean();
+                        demoImageBean.setString("List Multi Image View data: " + String.valueOf(i) +
+                                "->" + String.valueOf(random.nextInt(1000)));
+                        list.add(demoImageBean);
+                    }
+                    listMultiAdapter.addAll(list);
                     break;
                 case REFRESH:
                     swipeRefreshLayout.setRefreshing(false);
                     random = new Random();
-                    String string = "Refresh List View data: " +
-                            "->" + String.valueOf(random.nextInt(1000));
-                    stringAdapter.add(0, string);
-                    stringAdapter.notifyDataSetChanged();
+                    DemoBean demoBean = new DemoBean();
+                    demoBean.setString("Refresh List Multi data: " +
+                            "->" + String.valueOf(random.nextInt(1000)));
+                    listMultiAdapter.add(0, demoBean);
+                    listMultiAdapter.notifyDataSetChanged();
                     break;
                 case LOADING:
-                    if (stringAdapter.getItemCount() >= 28) {
-                        stringAdapter.setLoadMoreEnable(false);
+                    if (listMultiAdapter.getItemCount() >= 18) {
+                        listMultiAdapter.setLoadMoreEnable(false);
                         return;
                     }
                     random = new Random();
-                    strings = new ArrayList<>();
-                    for (int i = 0; i < 1; i++) {
-                        strings.add("Loading List View data: " + String.valueOf(i) +
-                                "->" + String.valueOf(random.nextInt(1000)));
-                    }
-                    stringAdapter.addAll(strings);
-                    stringAdapter.setLoading(false);
+                    demoBean = new DemoBean();
+                    demoBean.setString("Loading List Multi data: " +
+                            "->" + String.valueOf(random.nextInt(1000)));
+                    listMultiAdapter.add(demoBean);
+                    listMultiAdapter.setLoading(false);
                     break;
             }
         }
@@ -104,7 +109,7 @@ public class SwipeRefreshListActivity extends AppCompatActivity implements Swipe
 
     @Override
     public void onRefresh() {
-        if (!stringAdapter.isLoading()) {
+        if (!listMultiAdapter.isLoading()) {
             handler.sendEmptyMessageDelayed(REFRESH, 1000);
         }
     }
@@ -112,9 +117,9 @@ public class SwipeRefreshListActivity extends AppCompatActivity implements Swipe
     @Override
     public void onLoadMore() {
         if (!swipeRefreshLayout.isRefreshing()) {
-            stringAdapter.setLoading(true);
+            listMultiAdapter.setLoading(true);
             handler.sendEmptyMessageDelayed(LOADING, 1000);
-            recyclerView.scrollToPosition(stringAdapter.getItemCount() - 1);
+            recyclerView.scrollToPosition(listMultiAdapter.getItemCount() - 1);
         }
     }
 }
