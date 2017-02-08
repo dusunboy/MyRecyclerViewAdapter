@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
 
 import com.myrecyclerviewadapter.vincent.app.adapter.ListMultiAdapter;
 import com.myrecyclerviewadapter.vincent.app.model.DemoBean;
@@ -51,6 +53,8 @@ public class SwipeRefreshMultiListActivity extends AppCompatActivity implements 
         listMultiAdapter = new ListMultiAdapter(list);
         listMultiAdapter.setOnLoadMoreListener(this);
         recyclerView.setAdapter(listMultiAdapter);
+        View item_header = LayoutInflater.from(this).inflate(R.layout.item_header, null);
+        listMultiAdapter.addHeaderView(item_header);
         initRefresh();
     }
 

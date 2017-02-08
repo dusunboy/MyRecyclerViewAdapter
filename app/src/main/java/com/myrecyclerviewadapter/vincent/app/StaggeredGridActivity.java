@@ -38,6 +38,7 @@ public class StaggeredGridActivity extends AppCompatActivity implements OnItemCl
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(
                 2, StaggeredGridLayoutManager.VERTICAL);
+        staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         ArrayList<String> strings = new ArrayList<>();

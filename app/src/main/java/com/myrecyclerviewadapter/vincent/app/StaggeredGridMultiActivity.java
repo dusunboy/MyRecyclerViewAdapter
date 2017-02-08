@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -37,6 +38,7 @@ public class StaggeredGridMultiActivity extends AppCompatActivity implements OnI
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(
                 2, StaggeredGridLayoutManager.VERTICAL);
+        staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         Random random = new Random();
@@ -57,6 +59,10 @@ public class StaggeredGridMultiActivity extends AppCompatActivity implements OnI
         }
         staggeredGridMultiAdapter = new StaggeredGridMultiAdapter(list);
         recyclerView.setAdapter(staggeredGridMultiAdapter);
+        View item_header = LayoutInflater.from(this).inflate(R.layout.item_header, null);
+        View item_footer = LayoutInflater.from(this).inflate(R.layout.item_footer, null);
+        staggeredGridMultiAdapter.addHeaderView(item_header);
+        staggeredGridMultiAdapter.addFooterView(item_footer);
         staggeredGridMultiAdapter.setOnItemClickListener(this);
         staggeredGridMultiAdapter.setOnItemLongClickListener(this);
         staggeredGridMultiAdapter.setOnItemOtherClickListener(this);

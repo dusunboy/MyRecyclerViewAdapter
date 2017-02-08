@@ -29,6 +29,7 @@
         <activity android:name=".StaggeredGridActivity"/>
         <activity android:name=".StaggeredGridMultiActivity"/>
         <activity android:name=".SwipeRefreshStaggeredGridActivity"/>
+        <activity android:name=".SwipeRefreshMultiStaggeredGridActivity"/>
     </application>
 
 </manifest>

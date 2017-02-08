@@ -52,5 +52,6 @@ public class StaggeredGridAdapter extends BaseRecyclerViewAdapter<String, BaseVi
                 }
             });
         }
+
     }
 }

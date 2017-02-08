@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -55,6 +56,10 @@ public class GridMultiActivity extends AppCompatActivity implements OnItemClickL
         }
         gridMultiAdapter = new GridMultiAdapter(list);
         recyclerView.setAdapter(gridMultiAdapter);
+        View item_header = LayoutInflater.from(this).inflate(R.layout.item_header, null);
+        View item_footer = LayoutInflater.from(this).inflate(R.layout.item_footer, null);
+        gridMultiAdapter.addHeaderView(item_header);
+        gridMultiAdapter.addFooterView(item_footer);
         gridMultiAdapter.setOnItemClickListener(this);
         gridMultiAdapter.setOnItemLongClickListener(this);
         gridMultiAdapter.setOnItemOtherClickListener(this);

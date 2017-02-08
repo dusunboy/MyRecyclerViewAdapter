@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,7 +27,9 @@ import java.util.List;
  */
 public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> extends RecyclerView.Adapter<K>{
 
-    private static final int LOADING_VIEW = 100003;
+    private static final int HEADER_VIEW = -1;
+    public static final int FOOTER_VIEW = -2;
+    private static final int LOADING_VIEW = -3;
     protected List<Object> list;
     protected Context context;
     private LayoutInflater layoutInflater;
@@ -39,9 +42,13 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
     private View loadingView;
     private boolean loadMoreEnable;
     private boolean isLoadMore;
+    private List<View> headerViews;
+    private List<View> footerViews;
 
     public BaseMultiRecyclerViewAdapter(List<Object> list) {
         this.list = list;
+        headerViews = new ArrayList<>();
+        footerViews = new ArrayList<>();
     }
 
     @Override
@@ -51,7 +58,13 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
                 return LOADING_VIEW;
             }
         }
-        return getMyItemViewType(position);
+        if (position < getHeaderViewsCount()) {
+            return HEADER_VIEW - position * 10;
+        } else if (position > (list.size() - 1 + getHeaderViewsCount())) {
+            return FOOTER_VIEW - position * 10;
+        } else {
+            return getMyItemViewType(position - getHeaderViewsCount());
+        }
     }
 
     /**
@@ -74,7 +87,21 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
         K k;
         this.context = parent.getContext();
         layoutInflater = LayoutInflater.from(context);
-        switch (viewType) {
+        int viewTypeMod;
+        if (viewType > 0) {
+            viewTypeMod = viewType;
+        } else {
+            viewTypeMod = viewType % -10;
+        }
+        switch (viewTypeMod) {
+            case HEADER_VIEW:
+                int position = (HEADER_VIEW - viewType) / 10;
+                k = createBaseViewHolder(parent, headerViews.get(position));
+                break;
+            case FOOTER_VIEW:
+                position = (FOOTER_VIEW - viewType) / 10 - list.size() - getHeaderViewsCount();
+                k = createBaseViewHolder(parent, footerViews.get(position));
+                break;
             case LOADING_VIEW:
                 if (loadingView != null) {
                     k = createBaseViewHolder(parent, loadingView);
@@ -98,13 +125,22 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
     @Override
     public void onBindViewHolder(final K k, int position) {
         int viewType = k.getItemViewType();
-        if (viewType != LOADING_VIEW) {
+        int viewTypeMod;
+        if (viewType > 0) {
+            viewTypeMod = viewType;
+        } else {
+            viewTypeMod = viewType % -10;
+        }
+        if (viewTypeMod != LOADING_VIEW && viewTypeMod != HEADER_VIEW
+                && viewTypeMod != FOOTER_VIEW  ) {
+            position = k.getAdapterPosition() - getHeaderViewsCount();
             onBindView(k, list.get(position), position);
+            final int finalPosition = position;
             k.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (onItemClickListener != null) {
-                        onItemClickListener.onItemClick(k.getParent(), v, k.getAdapterPosition());
+                        onItemClickListener.onItemClick(k.getParent(), v, finalPosition);
                     }
                 }
             });
@@ -112,7 +148,7 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
                 @Override
                 public boolean onLongClick(View v) {
                     if (onItemLongClickListener != null) {
-                        onItemLongClickListener.onItemLongClick(k.getParent(), v, k.getAdapterPosition());
+                        onItemLongClickListener.onItemLongClick(k.getParent(), v, finalPosition);
                     }
                     return true;
                 }
@@ -122,25 +158,35 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
 
     @Override
     public int getItemCount() {
-        return list.size() + (isLoading ? 1 : 0);
+        return getHeaderViewsCount() + list.size()
+                + getFooterViewsCount() + (isLoading ? 1 : 0);
     }
 
     @Override
     public void onAttachedToRecyclerView(final RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        final RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
-        if (manager instanceof GridLayoutManager) {
-            final GridLayoutManager gridManager = ((GridLayoutManager) manager);
+        final RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager instanceof GridLayoutManager) {
+            final GridLayoutManager gridManager = ((GridLayoutManager) layoutManager);
             gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
                     int viewType = getItemViewType(position);
-                    return (viewType == LOADING_VIEW) ? gridManager.getSpanCount() : 1;
+                    int viewTypeMod;
+                    if (viewType > 0) {
+                        viewTypeMod = viewType;
+                    } else {
+                        viewTypeMod = viewType % -10;
+                    }
+                    return (viewTypeMod == HEADER_VIEW ||
+                            viewTypeMod == FOOTER_VIEW ||
+                            viewTypeMod == LOADING_VIEW) ? gridManager.getSpanCount() : 1;
                 }
             });
         }
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            public int firstVisibleItems;
+            public int lastVisibleItemPosition = -1;
+            public int firstVisibleItemPosition;
             public int totalItemCount;
             public int visibleItemCount;
             public int dy;
@@ -149,34 +195,69 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 this.dy = dy;
-                if (manager instanceof GridLayoutManager) {
-                    GridLayoutManager gridLayoutManager = ((GridLayoutManager) manager);
+                if (layoutManager instanceof GridLayoutManager) {
+                    GridLayoutManager gridLayoutManager = ((GridLayoutManager) layoutManager);
                     visibleItemCount = gridLayoutManager.getChildCount();
                     totalItemCount = getItemCount();
-                    firstVisibleItems = gridLayoutManager.findFirstVisibleItemPosition();
-                } else if (manager instanceof LinearLayoutManager) {
-                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) manager);
+                    firstVisibleItemPosition = gridLayoutManager.findFirstVisibleItemPosition();
+                } else if (layoutManager instanceof LinearLayoutManager) {
+                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) layoutManager);
                     visibleItemCount = linearLayoutManager.getChildCount();
                     totalItemCount = getItemCount();
-                    firstVisibleItems = linearLayoutManager.findFirstVisibleItemPosition();
-                } else if (manager instanceof StaggeredGridLayoutManager) {
-
+                    firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                } else if (layoutManager instanceof StaggeredGridLayoutManager) {
+                    totalItemCount = getItemCount();
+                    StaggeredGridLayoutManager staggeredGridLayoutManager =
+                            (StaggeredGridLayoutManager) layoutManager;
+                    int[] lastPositions = new int[staggeredGridLayoutManager.getSpanCount()];
+                    staggeredGridLayoutManager.findLastVisibleItemPositions(lastPositions);
+                    lastVisibleItemPosition = findLastPositionMax(lastPositions);
                 }
             }
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                if (lastVisibleItemPosition > 0 && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    // StaggeredGridLayoutManager keeps a mapping between spans and items.
+                    StaggeredGridLayoutManager staggeredGridLayoutManager =
+                            (StaggeredGridLayoutManager) layoutManager;
+                    staggeredGridLayoutManager.invalidateSpanAssignments();
+                }
                 if (loadMoreEnable && dy > 0) {
                     if (!isLoadMore && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        if (firstVisibleItems != 0 && (visibleItemCount + firstVisibleItems) >= totalItemCount) {
-                            isLoadMore = true;
-                            if (onLoadMoreListener != null) {
-                                onLoadMoreListener.onLoadMore();
+                        if (lastVisibleItemPosition > 0) {
+                            if (lastVisibleItemPosition >= totalItemCount - 1) {
+                                isLoadMore = true;
+                                if (onLoadMoreListener != null) {
+                                    onLoadMoreListener.onLoadMore();
+                                }
+                            }
+                        } else {
+                            if (firstVisibleItemPosition != 0 && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount) {
+                                isLoadMore = true;
+                                if (onLoadMoreListener != null) {
+                                    onLoadMoreListener.onLoadMore();
+                                }
                             }
                         }
                     }
                 }
+            }
+
+            /**
+             * Return max position
+             * @param lastPositions
+             * @return
+             */
+            private int findLastPositionMax(int[] lastPositions) {
+                int max = lastPositions[0];
+                for (int value : lastPositions) {
+                    if (value > max) {
+                        max = value;
+                    }
+                }
+                return max;
             }
         });
     }
@@ -383,6 +464,193 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
     }
 
     /**
+     * Add view to the end of this header view
+     * @param view
+     * @return
+     */
+    public boolean addHeaderView(View view) {
+        boolean isAdd = headerViews.add(view);
+        notifyDataSetChanged();
+        return isAdd;
+    }
+
+    /**
+     * Inserts the specified view at the specified position in this header view
+     * @param index
+     * @param view
+     */
+    public void addHeaderView(int index, View view) {
+        headerViews.add(index, view);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Add all of the views to the end of this header view
+     * @param views
+     * @return
+     */
+    public boolean addAllHeaderView(List<View> views) {
+        boolean isAdd = headerViews.addAll(views);
+        notifyDataSetChanged();
+        return isAdd;
+    }
+
+    /**
+     * Inserts all of the views at the specified position in this header view
+     * @param index
+     * @param views
+     * @return
+     */
+    public boolean addAllHeaderView(int index, List<View> views) {
+        boolean isAdd = headerViews.addAll(index, views);
+        notifyDataSetChanged();
+        return isAdd;
+    }
+
+    /**
+     * Removes the specified view from this header view
+     * @param view
+     * @return
+     */
+    public boolean removeHeaderView(View view) {
+        boolean isRemove = headerViews.remove(view);
+        notifyDataSetChanged();
+        return isRemove;
+    }
+
+    /**
+     * Removes the specified view at the specified position in this header view
+     * @param index
+     * @return
+     */
+    public View removeHeaderView(int index) {
+        View view = headerViews.remove(index);
+        notifyDataSetChanged();
+        return view;
+    }
+
+    /**
+     * Removes all of the views from this header view
+     */
+    public void removeAllHeaderView() {
+        headerViews.clear();
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Removes from this header view all of its views that are contained in the specified collection
+     * @param views
+     * @return
+     */
+    public boolean removeAllHeaderView(List<View> views) {
+        boolean isRemove = headerViews.removeAll(views);
+        notifyDataSetChanged();
+        return isRemove;
+    }
+
+    /**
+     * Returns the total number of header views by the adapter.
+     * @return
+     */
+    public int getHeaderViewsCount() {
+        return headerViews.size();
+    }
+
+
+    /**
+     * Add view to the end of this footer view
+     * @param view
+     * @return
+     */
+    public boolean addFooterView(View view) {
+        boolean isAdd = footerViews.add(view);
+        notifyDataSetChanged();
+        return isAdd;
+    }
+
+    /**
+     * Inserts the specified view at the specified position in this footer view
+     * @param index
+     * @param view
+     */
+    public void addFooterView(int index, View view) {
+        footerViews.add(index, view);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Add all of the views to the end of this footer view
+     * @param views
+     * @return
+     */
+    public boolean addAllFooterView(List<View> views) {
+        boolean isAdd = footerViews.addAll(views);
+        notifyDataSetChanged();
+        return isAdd;
+    }
+
+    /**
+     * Inserts all of the views at the specified position in this footer view
+     * @param index
+     * @param views
+     * @return
+     */
+    public boolean addAllFooterView(int index, List<View> views) {
+        boolean isAdd = footerViews.addAll(index, views);
+        notifyDataSetChanged();
+        return isAdd;
+    }
+
+    /**
+     * Removes the specified view from this footer view
+     * @param view
+     * @return
+     */
+    public boolean removeFooterView(View view) {
+        boolean isRemove = footerViews.remove(view);
+        notifyDataSetChanged();
+        return isRemove;
+    }
+
+    /**
+     * Removes the specified view at the specified position in this footer view
+     * @param index
+     * @return
+     */
+    public View removeFooterView(int index) {
+        View view = footerViews.remove(index);
+        notifyDataSetChanged();
+        return view;
+    }
+
+    /**
+     * Removes all of the views from this footer view
+     */
+    public void removeAllFooterView() {
+        footerViews.clear();
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Removes from this footer view all of its views that are contained in the specified collection
+     * @param views
+     * @return
+     */
+    public boolean removeAllFooterView(List<View> views) {
+        boolean isRemove = footerViews.removeAll(views);
+        notifyDataSetChanged();
+        return isRemove;
+    }
+
+    /**
+     * Returns the total number of footer views by the adapter.
+     * @return
+     */
+    public int getFooterViewsCount() {
+        return footerViews.size();
+    }
+
+    /**
      * Returns a color integer associated with a particular resource ID. If the
      * resource holds a complex {@link ColorStateList}, then the default color
      * from the set is returned.
@@ -489,6 +757,40 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
         this.loadMoreEnable = loadMoreEnable;
         if (!loadMoreEnable && isLoading) {
             setLoading(false);
+        }
+    }
+
+    @Override
+    public void onViewAttachedToWindow(K holder) {
+        super.onViewAttachedToWindow(holder);
+        if (isStaggeredGridLayout(holder)) {
+            handleLayoutIfStaggeredGridLayout(holder, holder.getLayoutPosition());
+        }
+    }
+
+    /**
+     * Check staggeredGridLayout
+     * @param holder
+     * @return
+     */
+    private boolean isStaggeredGridLayout(RecyclerView.ViewHolder holder) {
+        ViewGroup.LayoutParams layoutParams = holder.itemView.getLayoutParams();
+        if (layoutParams != null && layoutParams instanceof StaggeredGridLayoutManager.LayoutParams) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Change layout fullSpan
+     * @param holder
+     * @param position
+     */
+    protected void handleLayoutIfStaggeredGridLayout(RecyclerView.ViewHolder holder, int position) {
+        if (position < getHeaderViewsCount()
+                || position > (list.size() - 1 + getHeaderViewsCount()) || isLoading) {
+            StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
+            layoutParams.setFullSpan(true);
         }
     }
 }

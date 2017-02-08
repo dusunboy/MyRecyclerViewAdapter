@@ -11,7 +11,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -67,7 +66,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
                 k = createBaseViewHolder(parent, headerViews.get(position));
                 break;
             case FOOTER_VIEW:
-                position = (viewType - FOOTER_VIEW) / 10 - list.size() - 1;
+                position = (viewType - FOOTER_VIEW) / 10 - list.size() - getHeaderViewsCount();
                 k = createBaseViewHolder(parent, footerViews.get(position));
                 break;
             case LIST_VIEW:
@@ -129,7 +128,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
         }
         if (position < getHeaderViewsCount()) {
             return HEADER_VIEW + position * 10;
-        } else if (position >= (list.size() + getHeaderViewsCount())) {
+        } else if (position > (list.size() - 1 + getHeaderViewsCount())) {
             return FOOTER_VIEW + position * 10;
         } else {
             return LIST_VIEW;
@@ -186,14 +185,14 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
                             (StaggeredGridLayoutManager) layoutManager;
                     int[] lastPositions = new int[staggeredGridLayoutManager.getSpanCount()];
                     staggeredGridLayoutManager.findLastVisibleItemPositions(lastPositions);
-                    lastVisibleItemPosition = findMax(lastPositions);
+                    lastVisibleItemPosition = findLastPositionMax(lastPositions);
                 }
             }
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (lastVisibleItemPosition > 0) {
+                if (lastVisibleItemPosition > 0 && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     // StaggeredGridLayoutManager keeps a mapping between spans and items.
                     StaggeredGridLayoutManager staggeredGridLayoutManager =
                             (StaggeredGridLayoutManager) layoutManager;
@@ -201,9 +200,6 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
                 }
                 if (loadMoreEnable && dy > 0) {
                     if (!isLoadMore && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        Log.i("onScrollStateChanged",
-                         String.valueOf(visibleItemCount) + ":" + String.valueOf(firstVisibleItemPosition)
-                                + ":" + String.valueOf(totalItemCount) + ":" + String.valueOf(lastVisibleItemPosition));
                         if (lastVisibleItemPosition > 0) {
                             if (lastVisibleItemPosition >= totalItemCount - 1) {
                                 isLoadMore = true;
@@ -223,7 +219,12 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
                 }
             }
 
-            private int findMax(int[] lastPositions) {
+            /**
+             * Return max position
+             * @param lastPositions
+             * @return
+             */
+            private int findLastPositionMax(int[] lastPositions) {
                 int max = lastPositions[0];
                 for (int value : lastPositions) {
                     if (value > max) {
@@ -735,13 +736,6 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
         }
     }
 
-//    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
-//        super.onViewAttachedToWindow(holder);
-//        if (isStaggeredGridLayout(holder)) {
-//            handleLayoutIfStaggeredGridLayout(holder, holder.getLayoutPosition());
-//        }
-//    }
-
 
     @Override
     public void onViewAttachedToWindow(K holder) {
@@ -751,6 +745,12 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
         }
     }
 
+
+    /**
+     * Check staggeredGridLayout
+     * @param holder
+     * @return
+     */
     private boolean isStaggeredGridLayout(RecyclerView.ViewHolder holder) {
         ViewGroup.LayoutParams layoutParams = holder.itemView.getLayoutParams();
         if (layoutParams != null && layoutParams instanceof StaggeredGridLayoutManager.LayoutParams) {
@@ -759,11 +759,16 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
         return false;
     }
 
+    /**
+     * Change layout fullSpan
+     * @param holder
+     * @param position
+     */
     protected void handleLayoutIfStaggeredGridLayout(RecyclerView.ViewHolder holder, int position) {
         if (position < getHeaderViewsCount()
-                || position >= (list.size() + getHeaderViewsCount()) || isLoading) {
-            StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
-            p.setFullSpan(true);
+                || position > (list.size() - 1 + getHeaderViewsCount()) || isLoading) {
+            StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
+            layoutParams.setFullSpan(true);
         }
     }
 }

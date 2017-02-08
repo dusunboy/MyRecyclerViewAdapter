@@ -33,9 +33,9 @@ public class SwipeRefreshStaggeredGridActivity extends AppCompatActivity impleme
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_swipe_refresh_grid);
 
         setTitle("SwipeRefreshStaggeredGridActivity");
-        setContentView(R.layout.activity_swipe_refresh_grid);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,

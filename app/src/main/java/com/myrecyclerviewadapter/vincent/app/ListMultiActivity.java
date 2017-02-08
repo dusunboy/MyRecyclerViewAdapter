@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -56,6 +57,10 @@ public class ListMultiActivity extends AppCompatActivity implements OnItemClickL
             list.add(demoImageBean);
         }
         listMultiAdapter = new ListMultiAdapter(list);
+        View item_header = LayoutInflater.from(this).inflate(R.layout.item_header, null);
+        View item_footer = LayoutInflater.from(this).inflate(R.layout.item_footer, null);
+        listMultiAdapter.addHeaderView(item_header);
+        listMultiAdapter.addFooterView(item_footer);
         recyclerView.setAdapter(listMultiAdapter);
         listMultiAdapter.setOnItemClickListener(this);
         listMultiAdapter.setOnItemLongClickListener(this);

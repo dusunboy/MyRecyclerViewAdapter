@@ -36,6 +36,7 @@ public class SwipeRefreshMultiActivity extends AppCompatActivity implements OnIt
         ArrayList<String> strings = new ArrayList<>();
         strings.add("SwipeRefresh Multi List View");
         strings.add("SwipeRefresh Multi Grid View");
+        strings.add("SwipeRefresh Multi StaggeredGrid View");
         StringAdapter stringAdapter = new StringAdapter(R.layout.item_text, strings);
         recyclerView.setAdapter(stringAdapter);
         stringAdapter.setOnItemClickListener(this);
@@ -49,6 +50,9 @@ public class SwipeRefreshMultiActivity extends AppCompatActivity implements OnIt
                 break;
             case 1:
                 startActivity(new Intent(this, SwipeRefreshMultiGridActivity.class));
+                break;
+            case 2:
+                startActivity(new Intent(this, SwipeRefreshMultiStaggeredGridActivity.class));
                 break;
         }
     }
