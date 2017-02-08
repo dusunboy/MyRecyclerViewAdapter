@@ -16,8 +16,6 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
-//        maven { url "https://dl.bintray.com/dusunboy/maven" }
-//        maven { url "https://jitpack.io" }
 
     }
 }

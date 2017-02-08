@@ -1,9 +1,21 @@
 # MyRecyclerViewAdapter
 
-我的RecyclerViewAdapter,支持滑动拖拽（其他功能在完善）
+我的RecyclerViewAdapter,支持左右滑动移除,拖拽,上拉加载,添加头部尾部
 
-## 未完善 ##
-1.使用ItemTouchHelper拖拽时候，当ItemViewType不同，不能连续拖动
+##特性
+
+支持LinearLayoutManager,GridLayoutManager,StaggeredGridLayoutManager
+
+##依赖
+
+
+
+## 使用
+
+
+
+##演示
+
 
 ## License
 
