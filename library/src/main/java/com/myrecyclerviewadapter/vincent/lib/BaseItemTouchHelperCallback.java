@@ -132,7 +132,15 @@ public class BaseItemTouchHelperCallback<T> extends ItemTouchHelper.Callback {
             BaseViewHolder baseViewHolder = (BaseViewHolder) viewHolder;
             baseViewHolder.onBaseItemClear();
         }
-        adapter.notifyDataSetChanged();
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
         super.clearView(recyclerView, viewHolder);
     }
 }
