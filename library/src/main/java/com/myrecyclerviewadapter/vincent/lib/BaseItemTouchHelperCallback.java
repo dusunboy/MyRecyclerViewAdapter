@@ -96,7 +96,7 @@ public class BaseItemTouchHelperCallback<T> extends ItemTouchHelper.Callback {
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int i) {
         int position = viewHolder.getAdapterPosition() - adapter.getHeaderViewsCount();
         tList.remove(position);
-        adapter.notifyItemRemoved(position  + adapter.getHeaderViewsCount());
+        adapter.notifyItemRemoved(viewHolder.getAdapterPosition());
     }
 
     @Override
@@ -132,15 +132,12 @@ public class BaseItemTouchHelperCallback<T> extends ItemTouchHelper.Callback {
             BaseViewHolder baseViewHolder = (BaseViewHolder) viewHolder;
             baseViewHolder.onBaseItemClear();
         }
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.postDelayed(new Runnable() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    adapter.notifyDataSetChanged();
-                }
+            public void run() {
+                adapter.notifyDataSetChanged();
             }
-        });
+        }, 200);
         super.clearView(recyclerView, viewHolder);
     }
 }
