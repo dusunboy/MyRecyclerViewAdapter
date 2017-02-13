@@ -1,17 +1,16 @@
 [ ![Download](https://api.bintray.com/packages/dusunboy/maven/MyRecyclerViewAdapter/images/download.svg) ](https://bintray.com/dusunboy/maven/MyRecyclerViewAdapter/_latestVersion)
 
-
-[中文版](README-zh.md)
+[Englinsh Version](README.md)
 
 # MyRecyclerViewAdapter
 
-> My RecyclerViewAdapter,support left and right sliding removal,drag,pull-up load,add headerView and footerView
+> 我的RecyclerViewAdapter,支持左右滑动移除,拖拽,上拉加载,添加头部尾部
 
-## Feature
+## 特性
 
-support LinearLayoutManager,GridLayoutManager,StaggeredGridLayoutManager
+支持LinearLayoutManager,GridLayoutManager,StaggeredGridLayoutManager
 
-## Dependencies
+## 依赖
 
 ```groovy
 
@@ -21,9 +20,9 @@ dependencies {
 
 ```
 
-## Use
+## 使用
 ```java
-    //Single Bean
+    //单个Bean
     ArrayList<String> strings = new ArrayList<>();
     StringAdapter stringAdapter = new StringAdapter(R.layout.item_text_image, strings);
 
@@ -35,7 +34,7 @@ dependencies {
             }
     }
 
-    //Multi Bean
+    //多个Bean
     ArrayList<Object> list = new ArrayList<>();
     list.add(new DemoBean());
     list.add(new DemoImageBean());
@@ -76,17 +75,17 @@ dependencies {
         }
     }
 
-    //Add headerView and footerView
+    //添加头部尾部
     View item_header = LayoutInflater.from(this).inflate(R.layout.item_header, null);
     View item_footer = LayoutInflater.from(this).inflate(R.layout.item_footer, null);
     stringAdapter.addHeaderView(item_header);
     stringAdapter.addFooterView(item_footer);
 
-    //Click and longClick
+    //点击，长按
     stringAdapter.setOnItemClickListener(this);
     stringAdapter.setOnItemLongClickListener(this);
 
-    //Other widgets click on item
+    //item里的其他控件点击
     stringAdapter.setOnItemOtherClickListener(this);
     @Override
     protected void onBindView(final BaseViewHolder baseViewHolder, String s, final int position) {
@@ -100,7 +99,7 @@ dependencies {
         }
     }
 
-    //Drag, left and right sliding removal
+    //拖拽和左右滑动删除
     BaseItemTouchHelperCallback<String> baseItemTouchHelperCallback = new BaseItemTouchHelperCallback<String>(stringAdapter, strings);
     ItemTouchHelper itemTouchHelper = new ItemTouchHelper(baseItemTouchHelperCallback);
     stringAdapter.setItemTouchHelper(itemTouchHelper);
@@ -111,7 +110,7 @@ dependencies {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (itemTouchHelper != null) {
-                //Trigger drag
+                //触发拖拽
                 if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
                     itemTouchHelper.startDrag(baseViewHolder);
                 }
@@ -121,19 +120,19 @@ dependencies {
         });
     }
 
-    //pull-up load
+    //上拉加载
     stringAdapter.setOnLoadMoreListener(this);
-    //Bottom loadingView display enable
+    //底部加载条是否显示
     stringAdapter.setLoading(true);
-    //Custom bottom loadingView
+    //自定义底部加载条
     stringAdapter.setLoadingView(loadingView);
 
 ```
-## Demo
+## 演示
 
 ![demo](gif/device-2017-02-09-004237.gif?raw=true)
 
-## License
+## 许可证
 
     The MIT License (MIT)
 
