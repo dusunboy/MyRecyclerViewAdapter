@@ -1,6 +1,6 @@
 [ ![Download](https://api.bintray.com/packages/dusunboy/maven/MyRecyclerViewAdapter/images/download.svg) ](https://bintray.com/dusunboy/maven/MyRecyclerViewAdapter/_latestVersion)
 
-[Englinsh Version](README.md)
+[English Version](README.md)
 
 # MyRecyclerViewAdapter
 
