@@ -1,4 +1,4 @@
-[ ![Blog](https://img.shields.io/badge/blog-简书-blue.svg) ](http://www.jianshu.com/p/f32ef790e949)
+[ ![Blog](https://img.shields.io/badge/Blog-简书-blue.svg) ](http://www.jianshu.com/p/f32ef790e949)
 [ ![Download](https://api.bintray.com/packages/dusunboy/maven/MyRecyclerViewAdapter/images/download.svg) ](https://bintray.com/dusunboy/maven/MyRecyclerViewAdapter/_latestVersion)
 
 [中文版](README-zh.md)
