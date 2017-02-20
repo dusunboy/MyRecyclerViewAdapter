@@ -16,7 +16,7 @@
 ```groovy
 
 dependencies {
-    compile 'com.github.dusunboy.MyRecyclerViewAdapter:library:1.0.0'
+    compile 'com.github.dusunboy.MyRecyclerViewAdapter:library:1.0.1'
 }
 
 ```
