@@ -37,7 +37,7 @@ public class GridMultiActivity extends AppCompatActivity implements OnItemClickL
         setTitle("GridMultiActivity");
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
+        final GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         Random random = new Random();
@@ -63,6 +63,16 @@ public class GridMultiActivity extends AppCompatActivity implements OnItemClickL
         gridMultiAdapter.setOnItemClickListener(this);
         gridMultiAdapter.setOnItemLongClickListener(this);
         gridMultiAdapter.setOnItemOtherClickListener(this);
+        gridMultiAdapter.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position == 4) {
+                    return gridLayoutManager.getSpanCount();
+                } else {
+                    return 1;
+                }
+            }
+        });
     }
 
     @Override

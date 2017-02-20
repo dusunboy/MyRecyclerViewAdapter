@@ -44,6 +44,7 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
     private boolean isLoadMore;
     private List<View> headerViews;
     private List<View> footerViews;
+    private GridLayoutManager.SpanSizeLookup spanSizeLookup;
 
     public BaseMultiRecyclerViewAdapter(List<Object> list) {
         this.list = list;
@@ -178,12 +179,21 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
                     } else {
                         viewTypeMod = viewType % -10;
                     }
-                    return (viewTypeMod == HEADER_VIEW ||
+                    if ((viewTypeMod == HEADER_VIEW ||
                             viewTypeMod == FOOTER_VIEW ||
-                            viewTypeMod == LOADING_VIEW) ? gridManager.getSpanCount() : 1;
+                            viewTypeMod == LOADING_VIEW)) {
+                        return gridManager.getSpanCount();
+                    } else {
+                        if (spanSizeLookup != null) {
+                            return spanSizeLookup.getSpanSize(position);
+                        } else {
+                            return 1;
+                        }
+                    }
                 }
             });
         }
+
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             public int lastVisibleItemPosition = -1;
             public int firstVisibleItemPosition;
@@ -792,5 +802,15 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
             StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
             layoutParams.setFullSpan(true);
         }
+    }
+
+    /**
+     * Sets the source to get the number of spans occupied by each item in the adapter.
+     *
+     * @param spanSizeLookup {@link GridLayoutManager.SpanSizeLookup} instance to be used to query number of spans
+     *                       occupied by each item
+     */
+    public void setSpanSizeLookup(GridLayoutManager.SpanSizeLookup spanSizeLookup) {
+        this.spanSizeLookup = spanSizeLookup;
     }
 }

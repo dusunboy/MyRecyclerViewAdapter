@@ -44,7 +44,7 @@ public class SwipeRefreshGridActivity extends AppCompatActivity implements OnLoa
                 android.R.color.holo_red_light);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
+        final GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         ArrayList<String> strings = new ArrayList<>();
@@ -57,6 +57,16 @@ public class SwipeRefreshGridActivity extends AppCompatActivity implements OnLoa
         TextView tv = (TextView) loadingView.findViewById(R.id.tv);
         tv.setText("loading...");
         stringAdapter.setLoadingView(loadingView);
+        stringAdapter.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position == 4) {
+                    return gridLayoutManager.getSpanCount();
+                } else {
+                    return 1;
+                }
+            }
+        });
         initRefresh();
     }
 

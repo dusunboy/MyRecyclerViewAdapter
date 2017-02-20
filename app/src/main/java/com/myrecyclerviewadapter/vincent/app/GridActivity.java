@@ -37,7 +37,7 @@ public class GridActivity extends AppCompatActivity implements OnItemClickListen
         setTitle("GridActivity");
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
+        final GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         ArrayList<String> strings = new ArrayList<>();
@@ -61,6 +61,16 @@ public class GridActivity extends AppCompatActivity implements OnItemClickListen
         stringAdapter.setOnItemClickListener(this);
         stringAdapter.setOnItemLongClickListener(this);
         stringAdapter.setOnItemOtherClickListener(this);
+        stringAdapter.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position == 4) {
+                    return gridLayoutManager.getSpanCount();
+                } else {
+                    return 1;
+                }
+            }
+        });
     }
 
     @Override

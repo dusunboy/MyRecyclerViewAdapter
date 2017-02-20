@@ -45,7 +45,7 @@ public class SwipeRefreshMultiGridActivity extends AppCompatActivity implements 
                 android.R.color.holo_green_light, android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
+        final GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         ArrayList<Object> list = new ArrayList<>();
@@ -58,6 +58,16 @@ public class SwipeRefreshMultiGridActivity extends AppCompatActivity implements 
         TextView tv = (TextView) loadingView.findViewById(R.id.tv);
         tv.setText("loading...");
         gridMultiAdapter.setLoadingView(loadingView);
+        gridMultiAdapter.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position == 4) {
+                    return gridLayoutManager.getSpanCount();
+                } else {
+                    return 1;
+                }
+            }
+        });
         initRefresh();
     }
 

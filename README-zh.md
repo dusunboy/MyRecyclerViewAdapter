@@ -127,11 +127,28 @@ dependencies {
     stringAdapter.setLoading(true);
     //自定义底部加载条
     stringAdapter.setLoadingView(loadingView);
+    //设置spanSizeLookup
+    stringAdapter.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position == 4) {
+                    return gridLayoutManager.getSpanCount();
+                } else {
+                    return 1;
+                }
+            }
+        });
 
 ```
 ## 演示
 
 ![demo](gif/device-2017-02-09-004237.gif?raw=true)
+
+## 更新日志
+
+### V1.0.1 2017-02-20
+
+* 增加spanSizeLookup设置
 
 ## 许可证
 

@@ -127,11 +127,28 @@ dependencies {
     stringAdapter.setLoading(true);
     //Custom bottom loadingView
     stringAdapter.setLoadingView(loadingView);
+    //set spanSizeLookup
+    stringAdapter.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position == 4) {
+                    return gridLayoutManager.getSpanCount();
+                } else {
+                    return 1;
+                }
+            }
+        });
 
 ```
 ## Demo
 
 ![demo](gif/device-2017-02-09-004237.gif?raw=true)
+
+## Update Log
+
+### V1.0.1 2017-02-20
+
+* Increase the spanSizeLookup setting
 
 ## License
 
