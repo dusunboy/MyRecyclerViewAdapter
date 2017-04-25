@@ -14,7 +14,7 @@ android {
     buildToolsVersion BUILD_TOOLS_VERSION as String
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 9
         targetSdkVersion TARGET_SDK_VERSION as int
         versionCode 1
         versionName LIBRARY_VERSION

@@ -30,7 +30,7 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
     private static final int HEADER_VIEW = -1;
     public static final int FOOTER_VIEW = -2;
     private static final int LOADING_VIEW = -3;
-    protected List<Object> list;
+    private List<Object> list;
     protected Context context;
     private LayoutInflater layoutInflater;
     private OnItemClickListener onItemClickListener;

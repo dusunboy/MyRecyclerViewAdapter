@@ -53,6 +53,8 @@ public class SwipeRefreshListActivity extends AppCompatActivity implements Swipe
         recyclerView.setAdapter(stringAdapter);
         View item_header = LayoutInflater.from(this).inflate(R.layout.item_header, null);
         stringAdapter.addHeaderView(item_header);
+        View item_footer = LayoutInflater.from(this).inflate(R.layout.item_footer, null);
+        stringAdapter.addFooterView(item_footer);
         initRefresh();
     }
 

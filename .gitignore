@@ -57,3 +57,14 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+.gradle
+.idea
+app.iml
+build
+gradle
+gradlew
+gradlew.bat
+local.properties
+MyRecyclerViewAdapter.iml
+library.iml
