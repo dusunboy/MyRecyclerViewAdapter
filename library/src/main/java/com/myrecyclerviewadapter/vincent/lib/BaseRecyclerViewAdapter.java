@@ -34,7 +34,7 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
     private List<View> headerViews;
     private List<View> footerViews;
     private int layoutResId;
-    protected List<T> list;
+    private List<T> list;
     protected Context context;
     private LayoutInflater layoutInflater;
     private OnItemClickListener onItemClickListener;

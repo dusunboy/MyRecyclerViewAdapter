@@ -46,7 +46,23 @@ captures/
 # Google Services (e.g. APIs or Firebase)
 google-services.json
 
+<<<<<<< HEAD
 # Freeline
 freeline.py
 freeline/
 freeline_project_description.json
+=======
+# Windows shortcuts
+*.lnk
+
+.gradle
+.idea
+app.iml
+build
+gradle
+gradlew
+gradlew.bat
+local.properties
+MyRecyclerViewAdapter.iml
+library.iml
+>>>>>>> origin/master
