@@ -150,6 +150,14 @@ dependencies {
 
 * 增加spanSizeLookup设置
 
+### V1.0.2 2017-04-26
+
+* 支持api 9
+
+### V1.0.3 2017-06-08
+
+* 修复bug
+
 ## 许可证
 
     The MIT License (MIT)

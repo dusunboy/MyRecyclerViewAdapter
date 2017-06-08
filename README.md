@@ -150,6 +150,14 @@ dependencies {
 
 * Increase the spanSizeLookup setting
 
+### V1.0.2 2017-04-26
+
+* support api 9
+
+### V1.0.3 2017-06-08
+
+* fix bug
+
 ## License
 
     The MIT License (MIT)
