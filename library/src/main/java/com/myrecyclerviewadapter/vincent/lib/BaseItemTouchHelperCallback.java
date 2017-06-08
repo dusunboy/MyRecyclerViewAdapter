@@ -17,6 +17,8 @@
 package com.myrecyclerviewadapter.vincent.lib;
 
 import android.graphics.Canvas;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -99,6 +101,7 @@ public class BaseItemTouchHelperCallback<T> extends ItemTouchHelper.Callback {
         adapter.notifyItemRemoved(viewHolder.getAdapterPosition());
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
@@ -124,6 +127,7 @@ public class BaseItemTouchHelperCallback<T> extends ItemTouchHelper.Callback {
         super.onSelectedChanged(viewHolder, actionState);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         viewHolder.itemView.setAlpha(ALPHA_FULL);
