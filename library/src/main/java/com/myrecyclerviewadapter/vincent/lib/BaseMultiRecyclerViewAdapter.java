@@ -479,6 +479,10 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
      * @return
      */
     public boolean addHeaderView(View view) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        view.setLayoutParams(layoutParams);
         boolean isAdd = headerViews.add(view);
         notifyDataSetChanged();
         return isAdd;
@@ -490,6 +494,10 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
      * @param view
      */
     public void addHeaderView(int index, View view) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        view.setLayoutParams(layoutParams);
         headerViews.add(index, view);
         notifyDataSetChanged();
     }
@@ -500,6 +508,12 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
      * @return
      */
     public boolean addAllHeaderView(List<View> views) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        for (View view : views) {
+            view.setLayoutParams(layoutParams);
+        }
         boolean isAdd = headerViews.addAll(views);
         notifyDataSetChanged();
         return isAdd;
@@ -512,6 +526,12 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
      * @return
      */
     public boolean addAllHeaderView(int index, List<View> views) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        for (View view : views) {
+            view.setLayoutParams(layoutParams);
+        }
         boolean isAdd = headerViews.addAll(index, views);
         notifyDataSetChanged();
         return isAdd;
@@ -573,6 +593,10 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
      * @return
      */
     public boolean addFooterView(View view) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        view.setLayoutParams(layoutParams);
         boolean isAdd = footerViews.add(view);
         notifyDataSetChanged();
         return isAdd;
@@ -584,6 +608,10 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
      * @param view
      */
     public void addFooterView(int index, View view) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        view.setLayoutParams(layoutParams);
         footerViews.add(index, view);
         notifyDataSetChanged();
     }
@@ -594,6 +622,12 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
      * @return
      */
     public boolean addAllFooterView(List<View> views) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        for (View view : views) {
+            view.setLayoutParams(layoutParams);
+        }
         boolean isAdd = footerViews.addAll(views);
         notifyDataSetChanged();
         return isAdd;
@@ -606,6 +640,12 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
      * @return
      */
     public boolean addAllFooterView(int index, List<View> views) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        for (View view : views) {
+            view.setLayoutParams(layoutParams);
+        }
         boolean isAdd = footerViews.addAll(index, views);
         notifyDataSetChanged();
         return isAdd;

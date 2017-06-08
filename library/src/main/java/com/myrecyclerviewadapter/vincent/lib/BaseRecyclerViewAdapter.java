@@ -75,6 +75,10 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
                 break;
             case LOADING_VIEW:
                 if (loadingView != null) {
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT);
+                    layoutParams.gravity = Gravity.CENTER;
+                    loadingView.setLayoutParams(layoutParams);
                     k = createBaseViewHolder(parent, loadingView);
                 } else {
                     ProgressBar progressBar = new ProgressBar(context);
@@ -454,6 +458,10 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      * @return
      */
     public boolean addHeaderView(View view) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        view.setLayoutParams(layoutParams);
         boolean isAdd = headerViews.add(view);
         notifyDataSetChanged();
         return isAdd;
@@ -465,6 +473,10 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      * @param view
      */
     public void addHeaderView(int index, View view) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        view.setLayoutParams(layoutParams);
         headerViews.add(index, view);
         notifyDataSetChanged();
     }
@@ -475,6 +487,12 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      * @return
      */
     public boolean addAllHeaderView(List<View> views) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        for (View view : views) {
+            view.setLayoutParams(layoutParams);
+        }
         boolean isAdd = headerViews.addAll(views);
         notifyDataSetChanged();
         return isAdd;
@@ -487,6 +505,12 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      * @return
      */
     public boolean addAllHeaderView(int index, List<View> views) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        for (View view : views) {
+            view.setLayoutParams(layoutParams);
+        }
         boolean isAdd = headerViews.addAll(index, views);
         notifyDataSetChanged();
         return isAdd;
@@ -548,6 +572,10 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      * @return
      */
     public boolean addFooterView(View view) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        view.setLayoutParams(layoutParams);
         boolean isAdd = footerViews.add(view);
         notifyDataSetChanged();
         return isAdd;
@@ -559,6 +587,10 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      * @param view
      */
     public void addFooterView(int index, View view) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        view.setLayoutParams(layoutParams);
         footerViews.add(index, view);
         notifyDataSetChanged();
     }
@@ -569,6 +601,12 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      * @return
      */
     public boolean addAllFooterView(List<View> views) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        for (View view : views) {
+            view.setLayoutParams(layoutParams);
+        }
         boolean isAdd = footerViews.addAll(views);
         notifyDataSetChanged();
         return isAdd;
@@ -581,6 +619,12 @@ public abstract class BaseRecyclerViewAdapter<T, K extends BaseViewHolder> exten
      * @return
      */
     public boolean addAllFooterView(int index, List<View> views) {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.CENTER;
+        for (View view : views) {
+            view.setLayoutParams(layoutParams);
+        }
         boolean isAdd = footerViews.addAll(index, views);
         notifyDataSetChanged();
         return isAdd;
