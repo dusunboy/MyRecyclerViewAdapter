@@ -100,13 +100,13 @@ public class GridMultiActivity extends AppCompatActivity implements OnItemClickL
     }
 
     @Override
-    public void OnItemOtherViewClick(View parent, View v, int position) {
+    public void onItemOtherViewClick(View parent, View v, int position) {
         Object object = gridMultiAdapter.get(position);
         if (object instanceof DemoBean) {
-            Toast.makeText(this, "OnItemOtherViewClick:" +((DemoBean) object).getString(),
+            Toast.makeText(this, "onItemOtherViewClick:" +((DemoBean) object).getString(),
                     Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "OnItemOtherViewClick:" + ((DemoImageBean) object).getString(),
+            Toast.makeText(this, "onItemOtherViewClick:" + ((DemoImageBean) object).getString(),
                     Toast.LENGTH_SHORT).show();
         }
     }

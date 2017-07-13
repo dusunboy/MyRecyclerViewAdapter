@@ -14,5 +14,5 @@ public interface OnItemOtherViewClickListener {
      * @param v
      * @param position
      */
-    void OnItemOtherViewClick(View parent, View v, int position);
+    void onItemOtherViewClick(View parent, View v, int position);
 }

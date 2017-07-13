@@ -76,8 +76,8 @@ public class StaggeredGridActivity extends AppCompatActivity implements OnItemCl
     }
 
     @Override
-    public void OnItemOtherViewClick(View parent, View v, int position) {
-        Toast.makeText(this, "OnItemOtherViewClick:" + staggeredGridAdapter.get(position),
+    public void onItemOtherViewClick(View parent, View v, int position) {
+        Toast.makeText(this, "onItemOtherViewClick:" + staggeredGridAdapter.get(position),
                 Toast.LENGTH_SHORT).show();
     }
 
