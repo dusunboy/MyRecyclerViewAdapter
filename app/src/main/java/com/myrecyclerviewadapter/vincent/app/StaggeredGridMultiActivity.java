@@ -93,7 +93,7 @@ public class StaggeredGridMultiActivity extends AppCompatActivity implements OnI
     }
 
     @Override
-    public void onItemOtherViewClick(View parent, View v, int position) {
+    public void OnItemOtherViewClick(View parent, View v, int position) {
         Object object = staggeredGridMultiAdapter.get(position);
         if (object instanceof DemoBean) {
             Toast.makeText(this, "onItemOtherViewClick:" +((DemoBean) object).getString(),
