@@ -71,7 +71,7 @@ public class ListActivity extends AppCompatActivity implements OnItemClickListen
     }
 
     @Override
-    public void OnItemOtherViewClick(View parent, View v, int position) {
+    public void onItemOtherViewClick(View parent, View v, int position) {
         Toast.makeText(this, "onItemOtherViewClick:" + stringAdapter.get(position),
                 Toast.LENGTH_SHORT).show();
     }

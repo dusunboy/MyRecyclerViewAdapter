@@ -16,7 +16,7 @@ support LinearLayoutManager,GridLayoutManager,StaggeredGridLayoutManager
 ```groovy
 
 dependencies {
-    compile 'com.github.dusunboy.MyRecyclerViewAdapter:library:1.0.3'
+    compile 'com.github.dusunboy.MyRecyclerViewAdapter:library:1.0.4'
 }
 
 ```
@@ -155,6 +155,10 @@ dependencies {
 * support api 9
 
 ### V1.0.3 2017-06-08
+
+* fix bug
+
+### V1.0.4 2017-11-23
 
 * fix bug
 

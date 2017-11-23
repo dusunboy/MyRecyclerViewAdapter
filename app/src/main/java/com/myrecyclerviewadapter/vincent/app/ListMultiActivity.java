@@ -92,7 +92,7 @@ public class ListMultiActivity extends AppCompatActivity implements OnItemClickL
     }
 
     @Override
-    public void OnItemOtherViewClick(View parent, View v, int position) {
+    public void onItemOtherViewClick(View parent, View v, int position) {
         Object object = listMultiAdapter.get(position);
         if (object instanceof DemoBean) {
             Toast.makeText(this, "onItemOtherViewClick:" +((DemoBean) object).getString(),

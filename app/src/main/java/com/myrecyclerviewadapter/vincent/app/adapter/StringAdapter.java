@@ -30,7 +30,7 @@ public class StringAdapter extends BaseRecyclerViewAdapter<String, BaseViewHolde
             iv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemOtherClickListener.OnItemOtherViewClick(baseViewHolder.itemView, v, position);
+                    onItemOtherClickListener.onItemOtherViewClick(baseViewHolder.itemView, v, position);
                 }
             });
         }

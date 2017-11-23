@@ -48,7 +48,7 @@ public class StaggeredGridAdapter extends BaseRecyclerViewAdapter<String, BaseVi
             iv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemOtherClickListener.OnItemOtherViewClick(baseViewHolder.itemView, v, position);
+                    onItemOtherClickListener.onItemOtherViewClick(baseViewHolder.itemView, v, position);
                 }
             });
         }

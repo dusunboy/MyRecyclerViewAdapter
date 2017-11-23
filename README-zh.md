@@ -16,7 +16,7 @@
 ```groovy
 
 dependencies {
-    compile 'com.github.dusunboy.MyRecyclerViewAdapter:library:1.0.3'
+    compile 'com.github.dusunboy.MyRecyclerViewAdapter:library:1.0.4'
 }
 
 ```
@@ -155,6 +155,10 @@ dependencies {
 * 支持api 9
 
 ### V1.0.3 2017-06-08
+
+* 修复bug
+
+### V1.0.4 2017-11-23
 
 * 修复bug
 
