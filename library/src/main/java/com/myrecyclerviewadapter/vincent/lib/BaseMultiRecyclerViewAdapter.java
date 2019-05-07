@@ -3,14 +3,6 @@ package com.myrecyclerviewadapter.vincent.lib;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -19,9 +11,20 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
 import java.util.ArrayList;
 import java.util.List;
-
+import java.lang.String;
+import java.util.Formatter;
 /**
  * Created by Vincent on 2017/1/20.
  */
@@ -716,7 +719,7 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
      * @deprecated Use {@link #getColor(int)} (int, Resources.Theme)} instead.
      */
     @ColorInt
-    public int getColor(@android.support.annotation.ColorRes int id) {
+    public int getColor(@ColorRes int id) {
         return context.getResources().getColor(id);
     }
 
@@ -736,7 +739,7 @@ public abstract class BaseMultiRecyclerViewAdapter<K extends BaseViewHolder> ext
     /**
      * Returns a localized formatted string from the application's package's
      * default string table, substituting the format arguments as defined in
-     * {@link java.util.Formatter} and {@link String#format}.
+     * {@link Formatter} and {@link String#format}.
      *
      * @param resId Resource id for the format string
      * @param formatArgs The format arguments that will be used for

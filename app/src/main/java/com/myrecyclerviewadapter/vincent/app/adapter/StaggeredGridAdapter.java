@@ -1,11 +1,12 @@
 package com.myrecyclerviewadapter.vincent.app.adapter;
 
-import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.view.MotionEventCompat;
 
 import com.myrecyclerviewadapter.vincent.app.R;
 import com.myrecyclerviewadapter.vincent.lib.BaseRecyclerViewAdapter;

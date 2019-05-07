@@ -146,6 +146,10 @@ dependencies {
 
 ## Update Log
 
+### V1.0.5 2019-05-07
+
+* Migrate to AndroidX
+
 ### V1.0.1 2017-02-20
 
 * Increase the spanSizeLookup setting

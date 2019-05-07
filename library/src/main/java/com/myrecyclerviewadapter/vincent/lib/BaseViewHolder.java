@@ -1,10 +1,11 @@
 package com.myrecyclerviewadapter.vincent.lib;
 
-import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 /**
  * Created by Vincent on 2017/1/20.
  */
@@ -44,13 +45,13 @@ public abstract class BaseViewHolder extends RecyclerView.ViewHolder {
     }
 
     /**
-     * {@link android.support.v7.widget.helper.ItemTouchHelper} <br/>
+     * {@link ItemTouchHelper} <br/>
      * Let the view holder know that this item is being moved or dragged
      */
     public abstract void onBaseItemSelected();
 
     /**
-     * {@link android.support.v7.widget.helper.ItemTouchHelper} <br/>
+     * {@link ItemTouchHelper} <br/>
      * Tell the view holder it's time to restore the idle state
      */
     public abstract void onBaseItemClear();

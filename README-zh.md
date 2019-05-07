@@ -146,6 +146,10 @@ dependencies {
 
 ## 更新日志
 
+### V1.0.5 2019-05-07
+
+* 迁移至AndroidX
+
 ### V1.0.1 2017-02-20
 
 * 增加spanSizeLookup设置

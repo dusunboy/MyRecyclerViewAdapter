@@ -14,7 +14,7 @@ android {
     buildToolsVersion BUILD_TOOLS_VERSION as String
     defaultConfig {
         applicationId "com.myrecyclerviewadapter.vincent.app"
-        minSdkVersion 15
+        minSdkVersion 19
         targetSdkVersion TARGET_SDK_VERSION as int
         versionCode 1
         versionName "1.0"
@@ -30,15 +30,16 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    testCompile 'junit:junit:4.12'
-    compile "com.android.support:recyclerview-v7:" + SUPPORT_V7_VERSION
-//    compile project(':library')
-    debugCompile "com.squareup.leakcanary:leakcanary-android:" + LEAKCANARY_VERSION
-    releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:" + LEAKCANARY_VERSION
-    testCompile "com.squareup.leakcanary:leakcanary-android-no-op:" + LEAKCANARY_VERSION
-    compile 'com.github.dusunboy.MyRecyclerViewAdapter:library:1.0.4'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+//    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+//        exclude group: 'com.android.support', module: 'support-annotations'
+//    })
+//    testCompile 'junit:junit:4.12'
+    implementation 'androidx.appcompat:appcompat:' + SUPPORT_V7_VERSION
+    implementation "androidx.recyclerview:recyclerview:" + RECYCLERVIEW_VERSION
+//    implementation project(':library')
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:" + LEAKCANARY_VERSION
+    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:" + LEAKCANARY_VERSION
+    testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:" + LEAKCANARY_VERSION
+    implementation 'com.github.dusunboy.MyRecyclerViewAdapter:library:1.0.5'
 }
